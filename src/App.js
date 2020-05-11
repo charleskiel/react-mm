@@ -110,7 +110,7 @@ class App extends Component {
 							},
 						],
 					});
-					//console.log(login)
+					console.log(login)
 					this.ws.send(login);
 
 					this.ws.onerror = (event) => {console.log("Error ", event)};
@@ -131,20 +131,20 @@ class App extends Component {
 				console.error("Error:", error);
 			});
 
-		fetch("https://charleskiel.dev:8000/chains?symbol=SPCE", {
-			method: "GET",
-			mode: "cors",
-			headers: {
-				"Content-Type": "application/json",
-			},
-		})
-			.then((response) => response.json())
-			.then((response) => {
-				this.setState({ response });
-			})
-			.then(() => {
-				//console.log(this.state.response)
-			});
+		// fetch("https://charleskiel.dev:8000/chains?symbol=SPCE", {
+		// 	method: "GET",
+		// 	mode: "cors",
+		// 	headers: {
+		// 		"Content-Type": "application/json",
+		// 	},
+		// })
+		// 	.then((response) => response.json())
+		// 	.then((response) => {
+		// 		this.setState({ response });
+		// 	})
+		// 	.then(() => {
+		// 		//console.log(this.state.response)
+		// 	});
 	}
 
 	msgRec = (msg) => {
@@ -175,7 +175,7 @@ class App extends Component {
 									`Login Sucuess! [code: ${m.content.code} msg:${m.content.msg}`
 								);
 								this.tickerSubscribe(
-									"GLD,SPY,QQQ,TSLA,AAPL,ACB,ADBE,AMD,AMTD,AMZN,BA,BBY,BYND,C,CAT,COKE,COST,CRM,CRSP,CVS,DIS,DKS,DLRT,DNKN,EA,ENPH,FDX,GRUB,HAL,HAS,"
+									"QQQ,GLD,SPY,TSLA,AAPL,AMD,AMZN"
 								);
 								//sendMessage(initStream)
 								this.getWatchLists()
@@ -213,7 +213,7 @@ class App extends Component {
 					source: this.settings.principals.streamerInfo.appId,
 					parameters: {
 						keys: key,
-						fields: "0,1,2,3,4,5,6,7,8",
+						fields: "0,1,2,3,8,9,10,11,12,13,14,15,16,17,18,24,25,28,29,40",
 					},
 				},
 			],
@@ -241,7 +241,7 @@ class App extends Component {
 	ticktimestamp = Date.now()
 	tickcount = 0
 	equityTick = (tick) => {
-		//console.log(tick.key)
+		//console.log(tick)
 		if (this.ticktimestamp >= Date.now() - 1000)
 		{
 			this.setState({pps: (this.tickcount / (Date.now() - this.ticktimestamp ) * 1000 )})
@@ -351,7 +351,7 @@ class App extends Component {
 									<Breadcrumb.Item>List</Breadcrumb.Item>
 									<Breadcrumb.Item>App</Breadcrumb.Item>
 								</Breadcrumb>
-								Content {this.state.pps}
+								Content
 								{this.listStocks()}
 							</Content>
 

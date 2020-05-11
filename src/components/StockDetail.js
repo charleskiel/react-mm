@@ -35,17 +35,24 @@ export default class StockDetail extends React.Component {
     ];
 
     componentDidMount() {
-        console.log("loading")
+        console.log("DidMount")
         this.getChart()
     }
-
+    componentDidUpdate() {
+        //console.log("DidUpdate")
+        //this.getChart()
+    }
+    
     getChart = () => {
+        console.log("getChart")
         let str = ""
-
+        console.log(this.props.selectedStock);
+        console.log(this.props.selectedStock);
+        console.log(this.props.selectedStock);
         str = `https://charleskiel.dev:8000/pricehistory?symbol=${this.props.selectedStock}&frequency=${this.state.frequency}&frequencyType=${this.state.frequencyType}&period=${this.state.period}&periodType=${this.state.periodType}`
         console.log(str)
 		fetch(str, {
-			method: "GET",
+            method: "GET",
 			mode: "cors",
 			headers: { "Content-Type": "application/json" },
 		})
@@ -60,14 +67,14 @@ export default class StockDetail extends React.Component {
             console.log(error);
         });
     }
-
-
+    
+    
     
     onChange = (value, selectedOptions) => {
         console.log("onChange")
         console.log(value)
         console.log(selectedOptions)
-        this.setState({period: value})
+        //this.setState({period: value})
         this.getChart()
         
     }
@@ -80,7 +87,7 @@ export default class StockDetail extends React.Component {
                         <h1>{this.props.selectedStock}</h1>
                         Chart Range:
                         <Cascader options={this.periodOptions} onChange={this.onChange}>
-                            <a href="#">{this.props.stocks[this.props.selectedStock].key}</a>
+                            <a href="#">{this.props.selectedStock}</a>
                         </Cascader>
                         <StockChart/>
                         <OptionChainHeatmap />

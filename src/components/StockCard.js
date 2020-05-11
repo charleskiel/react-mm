@@ -1,4 +1,4 @@
-import { Card , Cascader} from 'antd';
+import { Card , Cascader, Row, Col} from 'antd';
 import * as React from 'react';
 import * as $ from 'jquery';
 import OptionChainHeatmap from './Heatmap'
@@ -46,12 +46,20 @@ export default class StockCard
 			<Card
 				className="stockCard"
 				size="small"
-				title={this.cas()}
+				title={this.props[25].replace(" - Common Stock","") + " : $" + this.props[3]}
 				
 				extra={<a onClick={() => this.props.setSelectedStock(this.props.id)} href="#">Chart</a>} >
-
-			<div>{this.props['1']} : {this.props['2']}</div>
-			<div>{this.props['3']} : {this.props['4']}</div>
+				{this.props[29]}
+				<small>
+					<Row>
+						<Col span={12}>Bid: {this.props['1']}</Col>
+						<Col span={12}>Ask: {this.props['2']}</Col>
+					</Row>
+					<Row>
+						<Col span={12}>Vol: {this.props['8']}</Col>
+						<Col span={12}>{this.props['4']}</Col>
+					</Row>
+				</small>
 			</Card>
 		)
 	}
