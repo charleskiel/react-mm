@@ -1,5 +1,5 @@
 import { Card , Cascader} from 'antd';
-
+import { Row, Col} from 'antd';
 import * as React from 'react';
 import * as $ from 'jquery';
 import OptionChainHeatmap from './Heatmap'
@@ -8,7 +8,7 @@ import StockChart from './StockChart'
 
 export default class StockDetail extends React.Component {
     state = {
-        data: [],
+        chartData: [],
         frequency: "1",
         frequencyType: "daily",
         period: "6",
@@ -38,16 +38,18 @@ export default class StockDetail extends React.Component {
         console.log("DidMount")
         this.getChart()
     }
-    componentDidUpdate() {
-        //console.log("DidUpdate")
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        if (prevProps.selectedStock != this.props.selectedStock){
+            //console.log(`Stock Changed Getting chart for ${this.props.selectedStock}`)
+            this.getChart()
+            //console.log(this.state)
+        }
         //this.getChart()
     }
     
     getChart = () => {
         console.log("getChart")
         let str = ""
-        console.log(this.props.selectedStock);
-        console.log(this.props.selectedStock);
         console.log(this.props.selectedStock);
         str = `https://charleskiel.dev:8000/pricehistory?symbol=${this.props.selectedStock}&frequency=${this.state.frequency}&frequencyType=${this.state.frequencyType}&period=${this.state.period}&periodType=${this.state.periodType}`
         console.log(str)
@@ -58,10 +60,10 @@ export default class StockDetail extends React.Component {
 		})
         .then((response) => response.json())
         .then((response) => {
-            this.setState({ response: response });
+            this.setState({ chartData: response });
         })
         .then(() => {
-            console.log(this.state.response);
+            //console.log(this.state.response);
         })
         .catch((error) => {
             console.log(error);
@@ -80,7 +82,8 @@ export default class StockDetail extends React.Component {
     }
     
     render() {
-        const { data } = this.state;
+        const { chartData } = this.state;
+        //console.log(this.props)
         if (this.props.selectedStock) {
             return (
                 <div>
@@ -89,7 +92,18 @@ export default class StockDetail extends React.Component {
                         <Cascader options={this.periodOptions} onChange={this.onChange}>
                             <a href="#">{this.props.selectedStock}</a>
                         </Cascader>
-                        <StockChart/>
+                        
+				<small>
+					<Row>
+						<Col span={12}>Bid: {this.props.stock['1']}</Col>
+						<Col span={12}>Ask: {this.props.stock['2']}</Col>
+					</Row>
+					<Row>
+						<Col span={12}>Vol: {this.props.stock['8']}</Col>
+						<Col span={12}>{this.props.stock['4']}</Col>
+					</Row>
+				</small>
+                        <StockChart chartData={this.state.chartData} symbol={this.props.selectedStock}/>
                         <OptionChainHeatmap />
                     
                 </div>
@@ -109,7 +123,7 @@ export default class StockDetail extends React.Component {
 
 
 
-// var j = JSON.parse(fs.readFileSync("./data/ROKU_chain.json", (err) => { if (err) console.error(err); }))
+// var j = JSON.parse(fs.readFileSync("./chartData/ROKU_chain.json", (err) => { if (err) console.error(err); }))
 // debugger
 // [j.callExpDateMap, j.putExpDateMap].map(call => _.values(call).map(_week => {
 //     //console.log((_week))
