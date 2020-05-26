@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import moment from "moment"
-import "./App.css";
-import "antd/dist/antd.css";
+//import "antd/dist/antd.css";
 import _ from "lodash"
 import { Layout, Menu, Breadcrumb,Row, Col, Card } from 'antd';
 import { UserOutlined, LaptopOutlined, NotificationOutlined } from '@ant-design/icons';
@@ -11,8 +10,10 @@ import StockCard from "./components/StockCard";
 import Stock from "./components/Stock";
 import {	MenuUnfoldOutlined,	MenuFoldOutlined,	VideoCameraOutlined,	UploadOutlined,} from "@ant-design/icons";
 
-import "./index.css";
+//import "./index.css";
+import "./App.css";
 import StockDetail from "./components/StockDetail";
+import { responsiveMap } from "antd/lib/_util/responsiveObserve";
 const { SubMenu } = Menu;
 const { Header, Content, Sider } = Layout;
 class App extends Component {
@@ -36,6 +37,7 @@ class App extends Component {
 	state = {
 		equities: {},
 		watchlists: {},
+		selectedWatchlist : "",
 		systemTime: 0,
 		selectedStock: "",
 		pps: 0,
@@ -53,97 +55,73 @@ class App extends Component {
 		return (this.rid = +1);
 	};
 
-	credentials = () => {
-		var tokenTimeStampAsDateObj = new Date(
-			this.settings.principals.streamerInfo.tokenTimestamp
-		);
-		var tokenTimeStampAsMs = tokenTimeStampAsDateObj.getTime();
-
-		return {
-			userid: this.settings.principals.accounts[0].accountId,
-			token: this.settings.principals.streamerInfo.token,
-			company: this.settings.principals.accounts[0].company,
-			segment: this.settings.principals.accounts[0].segment,
-			cddomain: this.settings.principals.accounts[0].accountCdDomainId,
-			usergroup: this.settings.principals.streamerInfo.userGroup,
-			accesslevel: this.settings.principals.streamerInfo.accessLevel,
-			authorized: "Y",
-			timestamp: tokenTimeStampAsMs,
-			appid: this.settings.principals.streamerInfo.appId,
-			acl: this.settings.principals.streamerInfo.acl,
-		};
-	};
-
+ws = new Object()
 	jsonToQueryString = (json) => {return Object.keys(json).map(function (key) {return (encodeURIComponent(key) +"=" +encodeURIComponent(json[key]));}).join("&");};
 
 	componentDidMount() {
-		fetch("https://charleskiel.dev:8000/accountinfo", {
+		fetch("https://charleskiel.dev:8000/state", {
 			method: "GET",
 			//mode: 'cors',
 			headers: {
 				"Content-Type": "application/json",
 			},
 		})
-			.then((response) => response.json())
-			.then((response) => {
-				console.log(response.principals);
-				this.settings.refresh_token= response.refresh_token
-				this.settings.access_token= response.access_token
-				this.settings.account_info= response.account_info
-				this.settings.principals= response.principals
+		.then((response) => response.json())
+		.then((response) => {
+			console.log(response);
+			
+			this.setState(prevState => {
+				return {...prevState, ...response.stocks}})
+			console.log(this.state)
 
-				this.ws = new WebSocket(
-					"wss://streamer-ws.tdameritrade.com/ws"
-				);
+			this.ws = new WebSocket(
+				"wss://charleskiel.dev:7999"
+			);
 
-				this.ws.onopen = (event) => {
-					console.log(this.settings.principals.accounts);
-					console.log("Connected to Server ", event);
+			this.ws.onopen = (event) => {
+				console.log(this.settings.principals.accounts);
+				console.log("Connected to Server ", event);
 
-					let login = JSON.stringify({
-						requests: [
-							{
-								service: "ADMIN",
-								command: "LOGIN",
-								requestid: 0,
-								account: this.settings.principals.accounts[0].accountId,
-								source: this.settings.principals.streamerInfo.appId,
-								parameters: {
-									credential: this.jsonToQueryString(this.credentials()),
-									token: this.settings.principals.streamerInfo.token,
-									version: "1.0",
-									qoslevel: 0,
-								},
-							},
-						],
-					});
-					console.log(login)
-					this.ws.send(login);
+				let login = JSON.stringify({
+					requests: [
+						{
+							service: "ADMIN",
+							command: "LOGIN",
+							requestid: 0,
+							username: "demo",
+							password: "password",
+							
+						},
+					],
+				});
+				console.log(login)
+				this.ws.send(login);
 
-					this.ws.onerror = (event) => {console.log("Error ", event)};
+				this.getWatchLists()
+				this.ws.onerror = (event) => {console.log("Error ", event)};
 
-					this.ws.onclose = (event) => {console.log("Disconnected ", event)};
+				this.ws.onclose = (event) => {console.log("Disconnected ", event)};
 
-					// Listen for messages
-					this.ws.onmessage = (event) => {
-						//console.log('Message from server ', event.data);
-						this.msgRec(JSON.parse(event.data));
+				// Listen for messages
+				this.ws.onmessage = (event) => {
+					//console.log('Message from server ', event.data);
+					this.msgRec(JSON.parse(event.data));
 
-						//this.setState({ packetcount: this.state.packetcount += 1 })
-						//console.log(msg)
-					};
+					//this.setState({ packetcount: this.state.packetcount += 1 })
+					//console.log(msg)
 				};
-			})
-			.catch((error) => {
-				console.error("Error:", error);
-			});
+			};
+		})
+		.catch((error) => {
+			console.error("Error:", error);
+		});
 
 	}
 
 	msgRec = (msg) => {
+		//console.log(msg)
 		if (msg.notify) {
 			this.setState({heartbeat: msg.notify[0].heartbeat})
-			//console.log(msg)
 		} else {
 			if (msg.data) {
 				msg.data.forEach((m) => {
@@ -155,89 +133,31 @@ class App extends Component {
 							break;
 						case "ACTIVES_NASDAQ":
 							console.log("Nasdaq Activies")
-							//console.log(m)
-							var split = m.content[0]["1"].split(";")
-							var o = {
-								"timestamp" : m.timestamp,
-								"ID:" : split[0],
-								"sampleDuration" : split[1],
-								"Start Time" : split[2],
-								"Display Time" : split[3],
-								"GroupNumber" : split[4],
-								"groups" : []}
-							split = (split[6].split(":"))
-							o.totalVolume = (split[0])
-							o.groupcount = split[1]
-							for (let i = 3; i < split.length; i += 3) {
-								this.setState(prevState => {
-									return {...prevState, [split[i]] : {...prevState[split[i]],...tick,}}
-								})
-
-								this.setState( {...this.state, [split[i]] : {key : split[i]}})
-								o.groups.push({symbol: split[i], volume: split[i+1], priceChange: split[i+2]}) 
-								//console.log(`${split[i]} - ${split[i+1]} - ${split[i+2]}`) 
-							}
-							console.log(o)
-							this.setState({ACTIVES_NASDAQ : o})
-							
-							console.log(this.state.ACTIVES_NASDAQ)
+							console.log(m)
+							//console.log(this.state.ACTIVES_NASDAQ)
 						
 						case "ACTIVES_NYSE":
 							console.log("NYSE Activies")
-							//console.log(m)
-							var split = m.content[0]["1"].split(";")
-							var o = {
-								"timestamp" : m.timestamp,
-								"ID:" : split[0],
-								"sampleDuration" : split[1],
-								"Start Time" : split[2],
-								"Display Time" : split[3],
-								"GroupNumber" : split[4],
-								"groups" : []}
-							split = (split[6].split(":"))
-							o.totalVolume = (split[0])
-							o.groupcount = split[1]
-							for (let i = 3; i < split.length; i += 3) {
-								if (!this.state[split[i]]) return {...this.state, [split[i]] : {key : split[i]}}
-								o.groups.push({symbol: split[i], volume: split[i+1], priceChange: split[i+2]}) 
-								//console.log(`${split[i]} - ${split[i+1]} - ${split[i+2]}`) 
-								
-							}
-							this.setState({ACTIVES_NYSE : o})
-							
-							console.log(this.state.ACTIVES_NYSE)
+							console.log(m)
+							//console.log(this.state.ACTIVES_NYSE)
 							break;
 						case "ACTIVES_OPTIONS":
 							console.log("OPTIONS Activies")
-							//console.log(m)
-							var split = m.content[0]["1"].split(";")
-							var o = {
-							"timestamp" : m.timestamp,
-							"ID:" : split[0],
-							"sampleDuration" : split[1],
-							"Start Time" : split[2],
-							"Display Time" : split[3],
-							"GroupNumber" : split[4],
-							"groups" : []}
-
-							split = (split[6].split(":"))
-							o.totalVolume = (split[3])
-							o.groupcount = split[1]
-
-							for (let i = 3; i < split.length; i += 4) {
-								//if (!this.state[split[i]]) this.tickerSubscribe([split[i]])
-								o.groups.push({symbol: split[i], name: split[i+1], volume: split[i+2], percentChange: split[i+3]}) 
-							}
-							this.setState({ACTIVES_OPTIONS : o})
-							console.log(o)
+							console.log(m)
+							//console.log(o)
 							break;
 						case "ACTIVES_OTCBB":
 							console.log("OTCBB Activies")
 							console.log(m)
 							break;
+							break;
+						case "TIMESALE_FUTURES":
+							//console.log("OTCBB Activies")
+							//console.log(m)
+							break;
 						default:
 							//console.log(`Default Message: ${msg}`);
-							//console.log(msg);
+							console.log(m);
 					}
 				});
 			}
@@ -247,24 +167,15 @@ class App extends Component {
 					switch (m.service) {
 						case "ADMIN":
 							if (m.content.code === 0) {
-								console.log(`Login Sucuess! [code: ${m.content.code} msg:${m.content.msg}`);
-								this.tickerSubscribe( ["QQQ","GLD","SPY","TSLA","AAPL","AMD","AMZN"]);
-								this.getWatchLists()
+								console.log(`Login Sucuess!`, m.content.code, m.content.msg);
 								this.initStream()
-								//getInsturment("TSLA")
 							} else {
-								console.log(`LOGIN FAILED!! [code: ${m.content.code} msg:${m.content.msg}`);
+								console.log(`LOGIN FAILED!!`, m.content.code, m.content.msg);
 							}
 							break;
-						case "CHART_EQUITY":
-							break;
-						case "ACTIVES_NASDAQ":
-							console.log(msg)
-							break;
 						default:
-						//console.log(`Default Message ${msg}`)
-						console.log(msg)
-						break;
+							console.log(`Default Message`,msg)
+							break;
 					}
 				});
 			}
@@ -275,71 +186,7 @@ class App extends Component {
 		console.log(`Sending: ${JSON.stringify(c)}`);
 		this.ws.send(JSON.stringify(c));
 	};
-	initStream = () => {
-		this.sendMsg({
-			"requests": [
-			    {
-				   "service": "ACTIVES_NASDAQ", 
-				   "requestid": "3", 
-				   "command": "SUBS", 
-				   "account": this.settings.principals.accounts[0].accountId, 
-				   "source": this.settings.principals.streamerInfo.appId, 
-				   "parameters": {
-					  "keys": "NASDAQ-ALL", 
-					  "fields": "0,1"
-				   }
-			    }, 
-			    {
-				   "service": "ACTIVES_OTCBB", 
-				   "requestid": "5", 
-				   "command": "SUBS", 
-				   "account": this.settings.principals.accounts[0].accountId, 
-				   "source": this.settings.principals.streamerInfo.appId, 
-				   "parameters": {
-					  "keys": "OTCBB-ALL", 
-					  "fields": "0,1"
-				   }
-			    }, 
-			    {
-				   "service": "ACTIVES_NYSE", 
-				   "requestid": "2", 
-				   "command": "SUBS", 
-				   "account": this.settings.principals.accounts[0].accountId, 
-				   "source": this.settings.principals.streamerInfo.appId, 
-				   "parameters": {
-					  "keys": "NYSE-ALL", 
-					  "fields": "0,1"
-				   }
-			    }, 
-			    {
-				   "service": "ACTIVES_OPTIONS", 
-				   "requestid": "4", 
-				   "command": "SUBS", 
-				   "account": this.settings.principals.accounts[0].accountId, 
-				   "source": this.settings.principals.streamerInfo.appId,             
-				   "parameters": {
-					  "keys": "OPTS-DESC-ALL", 
-					  "fields": "0,1"
-				   }
-			    }
-			]
-		 })
-		 this.sendMsg({
-			"requests": [
-			    {
-				   "service": "CHART_FUTURES",
-				   "requestid": "2",
-				   "command": "SUBS",
-				   "account": this.settings.principals.accounts[0].accountId, 
-				   "source": this.settings.principals.streamerInfo.appId,    
-				   "parameters": {
-					  "keys": "/ES",
-					  "fields": "0,1,2,3,4,5,6,7"
-				   }
-			    }
-			]
-		 })
-	}
+	initStream = () => {}
 
 	tickerSubscribe = (key) => {
 		let keys = [..._.keys(this.state).filter(stock=> {
@@ -403,28 +250,51 @@ class App extends Component {
 		this.setState({selectedStock: stock})
 		//console.log(this.state)
 	}
+
+
+	setSelectedWatchlist = (list) => {
+		console.log(`Setting Watchlist to ${list}`)
+		this.setState({selectedWatchlist: list})
+		console.log(this.state)
+	}
   
 	listStocks = () => {
-		if (this.state){
-			return _.values(this.state).filter(stock => {
-				console.log(stock)
-				if (stock.key) {
-					return <StockCard setSelectedStock={this.setSelectedStock} key={stock.key} id={stock.key} {...stock}
-					 />}
-		    
-		  })
-		} 
-	   }
+
+		let list = _.values(this.state.watchlists).filter(list => {
+			if (list.watchlistId === this.state.selectedWatchlist) {
+				return list
+			}
+		})
+
+		if (list[0]){
+
+			console.log (list[0].watchlistItems)
+			return (
+				list[0].watchlistItems.map(stock => {
+					console.log(stock.instrument.symbol)
+					// console.log(stock.instrument.symbol)
+					// console.log(this.state[stock.instrument.symbol])
+					return <StockCard 
+						setSelectedStock={this.setSelectedStock} 
+						key={stock.instrument.symbol}
+						id={stock.instrument.symbol}stock={this.state[stock.instrument.symbol]}
+					/>
+				})
+			)
+		}
+	}
+	   
 
 	getWatchLists = () => {
 		return new Promise((sucsess, fail) => {
-			fetch("https://charleskiel.dev:8000/watchlists", {
+			fetch("https://charleskiel.dev:8000/getWatchlists", {
 				method: "GET",
 				mode: "cors",
 				headers: {"Content-Type": "application/json"},
 			})
 			.then((response) => response.json())
 			.then((response) => {
+				console.log(response)
 				this.setState({ watchlists: response });
 			})
 		})
@@ -481,7 +351,7 @@ class App extends Component {
 
 					<Menu mode="inline"defaultSelectedKeys={['1']}defaultOpenKeys={['watchlists']}style={{ height: '100%', borderRight: 0 }}>
 						<SubMenu key="watchlists" title={<span><UserOutlined />Watchlists</span>}>
-							{_.values(this.state.watchlists).map(list => <Menu.Item key={list.watchlistId} >{list.name}</Menu.Item>)}
+							{_.values(this.state.watchlists).map(list => <Menu.Item key={list.watchlistId} onClick={() => this.setSelectedWatchlist(list.watchlistId)} >{list.name}</Menu.Item>)}
 						</SubMenu>
 						<SubMenu key="sub2" title={<span><LaptopOutlined />subnav 2</span>}>
 							<Menu.Item key="5"	>Activities</Menu.Item>
@@ -489,7 +359,7 @@ class App extends Component {
 							<Menu.Item key="7">option7</Menu.Item>
 							<Menu.Item key="8">option8</Menu.Item>
 						</SubMenu>
-						
+						)
 						<SubMenu
 						key="sub3"
 						title={

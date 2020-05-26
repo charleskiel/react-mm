@@ -7,7 +7,8 @@ export default class OptionChainHeatmap
     state = {
         data: [],
         dates: [],
-        strikes: []
+        strikes: [],
+        selectedCall: {}
     };
 
     list = []
@@ -15,70 +16,22 @@ export default class OptionChainHeatmap
     strikes = []
     componentDidMount() {
     }
-
-
-
-    render() {
-        const { data } = this.state;
-        const scale = [{
-            dataKey: 'strike',
-            type: 'cat',
-            values: this.state.strikes
-        }, {
-            dataKey: 'Date',
-            type: 'cat',
-            values: this.state.dates,
-        }];
-
-        const axis1Opts = {
-            dataKey: 'strike',
-            tickLine: null,
-            grid: {
-                align: 'center',
-                lineStyle: {
-                    lineWidth: 1,
-                    lineDash: null,
-                    stroke: '#f0f0f0',
-                },
-            },
-        };
-
-        const axis2Opts = {
-            dataKey: 'day',
-            title: null,
-            grid: {
-                align: 'center',
-                lineStyle: {
-                    lineWidth: 1,
-                    lineDash: null,
-                    stroke: '#f0f0f0',
-                },
-                showFirstLine: true,
-            },
-        };
-
-        const seriesOpts = {
-            color: ['sales', '#BAE7FF-#1890FF-#0050B3'],
-            position: 'name*day',
-            label: ['sales', {
-                offset: -2,
-                textStyle: {
-                    fill: '#fff',
-                    shadowBlur: 2,
-                    shadowColor: 'rgba(0, 0, 0, .45)',
-                }
-            }],
-            style: {
-                lineWidth: 1,
-                stroke: '#fff',
-            },
-        };
-
-        return (
-            <div>
-            </div>
-        );
+    
+    hover = (e) => {
     }
+    
+    leave = (e) => {
+        //console.log("leave")
+        //console.log(e)
+        e.target.style.backgroundColor = '#000';
+    }
+    
+    
+          
+        
+          
+    
+
 }
 
 
