@@ -40,6 +40,7 @@ class App extends Component {
 		selectedWatchlist : "",
 		systemTime: 0,
 		selectedStock: "",
+		status: {},
 		pps: 0,
 		heartbeat: 0,
 		ACTIVES_NASDAQ: {},
@@ -73,15 +74,14 @@ ws = new Object()
 			this.setState(prevState => {
 				return {...prevState, ...response.stocks}})
 			console.log(this.state)
-
-			this.ws = new WebSocket(
-				"wss://charleskiel.dev:7999"
-			);
+			this.getStatus()
+				setInterval(this.getStatus, 2000)
+			this.ws = new WebSocket("wss://charleskiel.dev:7999");
 
 			this.ws.onopen = (event) => {
 				console.log(this.settings.principals.accounts);
 				console.log("Connected to Server ", event);
-
+				
 				let login = JSON.stringify({
 					requests: [
 						{
@@ -90,26 +90,18 @@ ws = new Object()
 							requestid: 0,
 							username: "demo",
 							password: "password",
-							
 						},
 					],
 				});
-				console.log(login)
+				this.getWatchLists()
+				this.ws.onmessage = (event) => {
+					this.msgRec(JSON.parse(event.data));
+				};
 				this.ws.send(login);
 
-				this.getWatchLists()
 				this.ws.onerror = (event) => {console.log("Error ", event)};
-
 				this.ws.onclose = (event) => {console.log("Disconnected ", event)};
-
-				// Listen for messages
-				this.ws.onmessage = (event) => {
-					//console.log('Message from server ', event.data);
-					this.msgRec(JSON.parse(event.data));
-
-					//this.setState({ packetcount: this.state.packetcount += 1 })
-					//console.log(msg)
-				};
+				
 			};
 		})
 		.catch((error) => {
@@ -132,31 +124,25 @@ ws = new Object()
 							m.content.forEach(eq => this.equityTick(eq));
 							break;
 						case "ACTIVES_NASDAQ":
-							console.log("Nasdaq Activies")
+							console.log("Nasdaq Actives")
 							console.log(m)
-							//console.log(this.state.ACTIVES_NASDAQ)
-						
+							break;
 						case "ACTIVES_NYSE":
-							console.log("NYSE Activies")
+							console.log("NYSE Actives")
 							console.log(m)
-							//console.log(this.state.ACTIVES_NYSE)
 							break;
 						case "ACTIVES_OPTIONS":
-							console.log("OPTIONS Activies")
+							console.log("OPTIONS Actives")
 							console.log(m)
-							//console.log(o)
 							break;
 						case "ACTIVES_OTCBB":
-							console.log("OTCBB Activies")
+							console.log("OTCBB Actives")
 							console.log(m)
 							break;
-							break;
 						case "TIMESALE_FUTURES":
-							//console.log("OTCBB Activies")
-							//console.log(m)
 							break;
 						default:
-							//console.log(`Default Message: ${msg}`);
+							console.log(`Default Message: ${msg}`);
 							console.log(m);
 					}
 				});
@@ -187,30 +173,6 @@ ws = new Object()
 		this.ws.send(JSON.stringify(c));
 	};
 	initStream = () => {}
-
-	tickerSubscribe = (key) => {
-		let keys = [..._.keys(this.state).filter(stock=> {
-			if (this.state[stock].key) {
-				//console.log(this.state[stock].key);
-				return true;}
-		}), ...key]
-		//console.log(_.keys(this.state).map(m => m.key).toString())
-		this.sendMsg({
-			requests: [
-				{
-					service: "QUOTE",
-					requestid: this.requestid(),
-					command: "SUBS",
-					account: this.settings.principals.accounts[0].accountId,
-					source: this.settings.principals.streamerInfo.appId,
-					parameters: {
-						keys: keys.toString(),
-						fields: "0,1,2,3,8,9,10,11,12,13,14,15,16,17,18,24,25,28,29,40",
-					},
-				},
-			],
-		});
-	};
 
 	toHHMMSS = (time) => {
 		var sec_num = parseInt(time, 10); // don't forget the second param
@@ -300,6 +262,24 @@ ws = new Object()
 		})
 	}
 	
+    
+	getStatus = () => {
+		console.log("getStatus")
+		let str = ""
+		str = `https://charleskiel.dev:8000/status`
+		console.log(str)
+		  fetch(str, {
+		    method: "GET",
+			  mode: "cors",
+			  headers: { "Content-Type": "application/json" },
+		  })
+		.then((response) => response.json())
+		.then((status) => {
+			this.setState({status : status})
+		    console.log(this.state)	
+		})
+  
+	 }
 
 	switchView = (page) => {
 		this.setState({showpage : page})
@@ -340,12 +320,13 @@ ws = new Object()
 			<Header className="header">
 				<div className="logo" />
 				<Menu theme="dark" mode="horizontal" defaultSelectedKeys={['2']}>
-					<Menu.Item key="1">Stocks</Menu.Item>
-					<Menu.Item key="2">Crypto</Menu.Item>
-					<Menu.Item key="3" onClick={() => this.switchView("activities") }>Dashboard</Menu.Item>
+					<Menu.Item key="1" onClick={() => this.switchView("dashboard") }>Dashboard</Menu.Item>
+					<Menu.Item key="2" onClick={() => this.switchView("stocks") }>Stocks</Menu.Item>
+					<Menu.Item key="3" onClick={() => this.switchView("crypto") }>Crypto</Menu.Item>
 				</Menu>
-				<h2>{moment(parseInt(this.state.heartbeat)).toString()}</h2>
 			</Header>
+				{/* {this.state.status.content && moment(parseInt(this.state.status.content[0].account[0].securitiesAccount.currentBalances)).toString()} */}
+				{this.state.status.content && this.state.status.content[0].account[0].securitiesAccount.currentBalances.liquidationValue.toString()}
 			<Layout>
 				<Sider width={200} className="site-layout-background">
 
@@ -392,8 +373,10 @@ ws = new Object()
 									<Breadcrumb.Item>List</Breadcrumb.Item>
 									<Breadcrumb.Item>App</Breadcrumb.Item>
 								</Breadcrumb>
+
 								{ this.state.showpage === "watchlist" &&
 								this.listStocks()}
+								
 								{ this.state.showpage === "activities" &&
 								<div className="site-card-wrapper">
 									<Row gutter={16}>

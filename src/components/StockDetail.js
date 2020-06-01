@@ -89,7 +89,7 @@ export default class StockDetail extends React.Component {
         .then((response) => response.json())
         .then((chain) => {
             console.log(chain)
-            console.log(_.values(chain.callExpDateMap["2020-05-29:4"]))
+            //console.log(_.values(chain.callExpDateMap["2020-05-29:4"]))
             this.chains = [chain.callExpDateMap,chain.putExpDateMap]
         
         })
@@ -100,7 +100,7 @@ export default class StockDetail extends React.Component {
         console.log(value)
         console.log(selectedOptions)
         //this.setState({period: value})
-        this.getChart()
+        //this.getChart()
         
     }
     
@@ -143,8 +143,8 @@ export default class StockDetail extends React.Component {
                         return <div><table>{
                             _.map(chain, (exp , x)=> {
                                 console.log(chain)
-console.log(exp)
-console.log(x)
+                                console.log(exp)
+                                console.log(x)
                                 return (<tr>
                                     <td style={{fontSize:"10px" , padding: "0px"}}>{x }</td>
                                     {_.values(exp).map( strike => {
