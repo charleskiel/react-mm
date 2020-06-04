@@ -45,9 +45,14 @@ export default class StockCard
 		return(
 			<Card
 				size="small"
-				title={this.props.stock[25].replace(" - Common Stock","") + " : $" + this.props.stock[3]}
-				
-				extra={<a onClick={() => this.props.setSelectedStock(this.props.id)} href="#">Chart</a>} >
+				title={this.props.stock[25] ? 
+					this.props.stock[25].replace(" - Common Stock","") + " : $" + this.props.stock[3]
+					: 
+					this.props.stock.key
+				}
+				extra={<a onClick={() => this.props.setSelectedStock(this.props.id)} href="#">Chart</a>}
+			>
+
 				{this.props.stock[29]}
 				<small>
 					<Row>
