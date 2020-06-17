@@ -360,7 +360,7 @@ ws = new Object()
 					</Sider>
 					<Layout className="watchlist" >
 						<Row>
-							<Col span={6}>
+							<Col span={4}>
 								<Content
 									className="site-layout-background"
 									style={{
@@ -380,7 +380,7 @@ ws = new Object()
 								</Content>
 
 							</Col>
-							<Col span={16}>
+							<Col span={18}>
 														
 								<Content
 									className="site-layout-background"

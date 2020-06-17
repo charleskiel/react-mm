@@ -38,12 +38,13 @@ export default class StockCard
     }
 
 	render() {
-		console.log(this.props.key)
+		//console.log(this.props.key)
 		//if(this.props.id === "TSLA") console.log(this.props)
 		//if(!this.props.id) console.log(this.props)
-		console.log(this.props)
+		//console.log(this.props)
 		return(
 			<Card
+				style={{ width:"200px"}}
 				size="small"
 				title={this.props.stock[25] ? 
 					this.props.stock[25].replace(" - Common Stock","") + " : $" + this.props.stock[3]

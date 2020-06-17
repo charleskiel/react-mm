@@ -140,16 +140,16 @@ export default class StockDetail extends React.Component {
                         }
                     </div>
                     <div>{this.chains.map(chain =>{
-                        return <div><table>{
+                        return <div><table style={{width: "1200px"}}>{
                             _.map(chain, (exp , x)=> {
-                                console.log(chain)
-                                console.log(exp)
-                                console.log(x)
+                                //console.log(chain)
+                                //console.log(exp)
+                                //console.log(x)
                                 return (<tr>
-                                    <td style={{fontSize:"10px" , padding: "0px"}}>{x }</td>
+                                    <td style={{fontSize:"10px" , padding: "1px", width: "60px"}}>{x }</td>
                                     {_.values(exp).map( strike => {
                                         return (<td
-                                        style={{width: "10px", height: "10px", backgroundColor: "#000", border: "1px solid #000",
+                                        style={{width: "10px", height: "10px", backgroundColor: "#F00", border: "1px solid #000",
                                         margin: "0px"}}
                                         onMouseLeave={this.leave}
                         
