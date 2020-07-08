@@ -66,9 +66,6 @@ export default class StockDetail extends React.Component {
         .then((response) => {
             this.setState({ chartData: response });
         })
-        .then(() => {
-            //console.log(this.state.response);
-        })
         .catch((error) => {
             console.log(error);
         });
@@ -95,14 +92,7 @@ export default class StockDetail extends React.Component {
         })
 
     }
-    onChange = (value, selectedOptions) => {
-        console.log("onChange")
-        console.log(value)
-        console.log(selectedOptions)
-        //this.setState({period: value})
-        //this.getChart()
-        
-    }
+    //onChange = (value, selectedOptions) => { }
     
     render() {
         const { chartData } = this.state;
@@ -175,22 +165,3 @@ export default class StockDetail extends React.Component {
 
 
 }
-
-
-
-
-// var j = JSON.parse(fs.readFileSync("./chartData/ROKU_chain.json", (err) => { if (err) console.error(err); }))
-// debugger
-// [j.callExpDateMap, j.putExpDateMap].map(call => _.values(call).map(_week => {
-//     //console.log((_week))
-//     _.values(_week).map(_strike => {
-//         _strike.map(_price => {
-//             //console.log(price.bid)
-
-//             //console.log(`${_week},${(_strike)},${_price.description}`)
-//             console.log(`${_price.description}`)
-//         })
-//     })
-// })
-// )
-

@@ -70,17 +70,17 @@ ws = new Object()
 		})
 		.then((response) => response.json())
 		.then((response) => {
-			console.log(response);
+			//console.log(response);
 			
 			this.setState(prevState => {
 				return {...prevState, ...response.stocks}})
-			console.log(this.state)
+				//console.log(this.state)
 			this.getStatus()
 				setInterval(this.getStatus, 2000)
 			this.ws = new WebSocket("wss://charleskiel.dev:7999");
 
 			this.ws.onopen = (event) => {
-				console.log(this.settings.principals.accounts);
+				//console.log(this.settings.principals.accounts);
 				console.log("Connected to Server ", event);
 				
 				let login = JSON.stringify({
@@ -122,29 +122,30 @@ ws = new Object()
 					
 					switch (m.service) {
 						case "QUOTE":
+							//console.log(m)
 							m.content.forEach(eq => this.equityTick(eq));
 							break;
 						case "ACTIVES_NASDAQ":
-							console.log("Nasdaq Actives")
-							console.log(m)
+							//console.log("Nasdaq Actives")
+							//console.log(m)
 							break;
 						case "ACTIVES_NYSE":
-							console.log("NYSE Actives")
-							console.log(m)
+							//console.log("NYSE Actives")
+							//console.log(m)
 							break;
 						case "ACTIVES_OPTIONS":
-							console.log("OPTIONS Actives")
-							console.log(m)
+							//console.log("OPTIONS Actives")
+							//console.log(m)
 							break;
 						case "ACTIVES_OTCBB":
-							console.log("OTCBB Actives")
-							console.log(m)
+							//console.log("OTCBB Actives")
+							//console.log(m)
 							break;
 						case "TIMESALE_FUTURES":
 							break;
 						default:
-							console.log(`Default Message: ${msg}`);
-							console.log(m);
+							//console.log(`Default Message: ${msg}`);
+							//console.log(m);
 					}
 				});
 			}
@@ -193,10 +194,13 @@ ws = new Object()
 		return hours + ":" + minutes + ":" + seconds;
 	};
 
+
+
+
 	ticktimestamp = Date.now()
 	tickcount = 0
 	equityTick = (tick) => {
-		//console.log(tick)
+		if (tick.key === "TWTR") console.log(tick['11'])
 		if (this.ticktimestamp >= Date.now() - 1000)
 		{
 			this.setState({pps: (this.tickcount / (Date.now() - this.ticktimestamp ) * 1000 )})
@@ -205,8 +209,15 @@ ws = new Object()
 		} 
 		this.tickcount += 1
 		this.setState(prevState => {
-			return {...prevState, [tick.key] : {...prevState[tick.key],...tick,}}})
+			return { ...prevState, [tick.key]: { ...prevState[tick.key], ...tick, } }
+		})
+		if (this.tickcount < 40) {
+			//console.log(tick);
+			//console.log(this.state)
+		}
 	};
+
+
 
 	setSelectedStock = (stock) => {
 		console.log(`Setting Chart to ${stock}`)
@@ -231,10 +242,10 @@ ws = new Object()
 
 		if (list[0]){
 
-			console.log (list[0].watchlistItems)
+			//console.log (list[0].watchlistItems)
 			return (
 				list[0].watchlistItems.map(stock => {
-					console.log(stock.instrument.symbol)
+					//console.log(stock.instrument.symbol)
 					// console.log(stock.instrument.symbol)
 					// console.log(this.state[stock.instrument.symbol])
 					return <StockCard 
@@ -257,7 +268,7 @@ ws = new Object()
 			})
 			.then((response) => response.json())
 			.then((response) => {
-				console.log(response)
+				//console.log(response)
 				this.setState({ watchlists: response });
 			})
 		})
@@ -265,10 +276,10 @@ ws = new Object()
 	
     
 	getStatus = () => {
-		console.log("getStatus")
+		//console.log("getStatus")
 		let str = ""
 		str = `https://charleskiel.dev:8000/status`
-		console.log(str)
+		//console.log(str)
 		  fetch(str, {
 		    method: "GET",
 			  mode: "cors",
@@ -277,7 +288,7 @@ ws = new Object()
 		.then((response) => response.json())
 		.then((status) => {
 			this.setState({status : status})
-		    console.log(this.state)	
+		    	//console.log(this.state)	
 		})
   
 	 }
