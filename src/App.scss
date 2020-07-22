@@ -1,0 +1,26 @@
+@import '~antd/dist/antd.dark.css';
+@import '~antd/dist/antd.compact.css';
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@4500&display=swap');
+@font-face {
+  font-family: 'SquareDotDigital';
+  src: local('SquareDotDigital'), url(./fonts/square_dot_digital-7.ttf) format('truetype');
+}
+
+
+body {
+  margin: 0;
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+code {
+}
+
+
+.watchlist{
+  width: 300px;
+}
+
+.dashboard{
+  padding: 2em;
+}
+
