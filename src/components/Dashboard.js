@@ -1,6 +1,7 @@
 import * as React from "react";
 import { Layout, Menu} from "antd";
 import StockCard from "./StockCard";
+import "./Dashboard.scss"
 import _ from "lodash";
 import { UserOutlined, LaptopOutlined, NotificationOutlined } from "@ant-design/icons";
 import moment from "moment";
@@ -49,7 +50,7 @@ export default class Dashboard extends React.Component {
 							<Menu.Item key="7">option7</Menu.Item>
 							<Menu.Item key="8">option8</Menu.Item>
 						</SubMenu>
-						)
+						
 						<SubMenu
 							key="sub3"
 							title={
@@ -68,12 +69,12 @@ export default class Dashboard extends React.Component {
 				</Sider>
 				<Layout className="dashboard">
 					<h1>DASHBOARD</h1>
-					{this.props.state.status.app && (
+					{this.props.app && (
 						<table>
 							<tr span={6}>
 								<td style={{ verticalAlign: "top" }}>
 									<h1>Account Status</h1>
-									<h4>Current Balance</h4>: {this.props.state.status.app.account[0].securitiesAccount.currentBalances.liquidationValue}
+									<h4>Current Balance</h4>: {this.props.app.account[0].securitiesAccount.currentBalances.liquidationValue}
 									<h4>Initial Balance</h4>:
 									<table style={{ fontSize: "10px", width: "400px" }}>
 										<tr>
@@ -83,7 +84,7 @@ export default class Dashboard extends React.Component {
 											<th>Value</th>
 										</tr>
 
-										{this.props.state.status.app.account[0].securitiesAccount.positions.map((pos) => {
+										{this.props.app.account[0].securitiesAccount.positions.map((pos) => {
 											return (
 												<tr>
 													<td>{pos.instrument.symbol}</td>
@@ -100,7 +101,7 @@ export default class Dashboard extends React.Component {
 
 								<td style={{ verticalAlign: "top" }}>
 									NYSE Actives
-									{_.values(this.props.state.status.actives.ACTIVES_NYSE).map((act) => {
+									{_.values(this.props.actives.ACTIVES_NYSE).map((act) => {
 										return (
 											<div>
 												<small>({act.sampleDuration / 60}min)</small>
@@ -126,7 +127,7 @@ export default class Dashboard extends React.Component {
 								</td>
 								<td style={{ verticalAlign: "top" }}>
 									NASDAQ Actives
-									{_.values(this.props.state.status.actives.ACTIVES_NASDAQ).map((act) => {
+									{_.values(this.props.actives.ACTIVES_NASDAQ).map((act) => {
 										return (
 											<div>
 												<small>({act.sampleDuration / 60}min)</small>
@@ -152,7 +153,7 @@ export default class Dashboard extends React.Component {
 								</td>
 								<td style={{ verticalAlign: "top" }}>
 									OTCBB Actives
-									{_.values(this.props.state.status.actives.ACTIVES_OTCBB).map((act) => {
+									{_.values(this.props.actives.ACTIVES_OTCBB).map((act) => {
 										return (
 											<div>
 												<small>({act.sampleDuration / 60}min)</small>
@@ -178,7 +179,7 @@ export default class Dashboard extends React.Component {
 								</td>
 								<td style={{ verticalAlign: "top" }}>
 									Options Actives
-									{_.values(this.props.state.status.actives.ACTIVES_OPTIONS).map((act) => {
+									{_.values(this.props.actives.ACTIVES_OPTIONS).map((act) => {
 										return (
 											<div>
 												<small>({act.sampleDuration / 60}min)</small>

@@ -1,21 +1,17 @@
 import React, { Component } from "react";
 //import moment from "moment"
 import "./App.scss";
-
+import Header from "./components/Header"
 import _ from "lodash"
 import { Layout, Menu, Breadcrumb,Row, Col, Card } from 'antd';
 import { UserOutlined, LaptopOutlined, NotificationOutlined } from '@ant-design/icons';
-import StockCard from "./components/StockCard";
-import StockDetail from "./components/StockDetail";
+import Stocks from "./components/Stocks";
 import Dashboard from "./components/Dashboard";
+import "./App.less";
 
 //import { changeConfirmLocale } from "antd/lib/modal/locale";
 //import {	MenuUnfoldOutlined,	MenuFoldOutlined,	VideoCameraOutlined,	UploadOutlined,} from "@ant-design/icons";
 //import { responsiveMap } from "antd/lib/_util/responsiveObserve";
-
-const { SubMenu } = Menu;
-const { Header, Content, Sider } = Layout;
-
 
 class App extends Component {
 	sessionId = "";
@@ -48,7 +44,7 @@ class App extends Component {
 		ACTIVES_NYSE: {},
 		ACTIVES_OPTIONS: {},
 		ACTIVES_OTCBB: {},
-		showpage: "stocks"
+		showpage: "dashboard"
 	};
 
 	ws = {};
@@ -243,26 +239,7 @@ class App extends Component {
 		console.log(this.state)
 	}
   
-	listStocks = () => {
 
-		let list = _.values(this.state.watchlists).filter(list => {
-			if (list.watchlistId === this.state.selectedWatchlist) {
-				return list
-			}
-		})
-
-		if (list[0]){
-			return (
-				list[0].watchlistItems.map(stock => {
-					return <StockCard 
-						setSelectedStock={this.setSelectedStock} 
-						key={stock.instrument.symbol}
-						id={stock.instrument.symbol}stock={this.state[stock.instrument.symbol]}
-					/>
-				})
-			)
-		}
-	}
 	   
 
 	getWatchLists = () => {
@@ -347,100 +324,12 @@ class App extends Component {
 	render(){
 		return (
 			<Layout>
-				<Header/>
+				<Header {...this.state} switchView={this.switchView}/>
 
 				{this.state.showpage === "stocks" && (
-					<Layout>
-						<Sider width={200} className="site-layout-background">
-							<Menu mode="inline" defaultSelectedKeys={["1"]} defaultOpenKeys={["watchlists"]} style={{ height: "100%", borderRight: 0 }}>
-								<SubMenu
-									key="watchlists"
-									title={
-										<span>
-											<UserOutlined />
-											Watchlists
-										</span>
-									}
-								>
-									{_.values(this.state.watchlists).map((list) => (
-										<Menu.Item key={list.watchlistId} onClick={() => this.setSelectedWatchlist(list.watchlistId)}>
-											{list.name}
-										</Menu.Item>
-									))}
-								</SubMenu>
-								<SubMenu
-									key="sub2"
-									title={
-										<span>
-											<LaptopOutlined />
-											subnav 2
-										</span>
-									}
-								>
-									<Menu.Item key="5">Activities</Menu.Item>
-									<Menu.Item key="6">option6</Menu.Item>
-									<Menu.Item key="7">option7</Menu.Item>
-									<Menu.Item key="8">option8</Menu.Item>
-								</SubMenu>
-								)
-								<SubMenu
-									key="sub3"
-									title={
-										<span>
-											<NotificationOutlined />
-											subnav 3
-										</span>
-									}
-								>
-									<Menu.Item key="9">option9</Menu.Item>
-									<Menu.Item key="10">option10</Menu.Item>
-									<Menu.Item key="11">option11</Menu.Item>
-									<Menu.Item key="12">option12</Menu.Item>
-								</SubMenu>
-							</Menu>
-						</Sider>
-						<Layout className="watchlist">
-							<Row
-								style={{
-									padding: 12,
-									margin: 0,
-									minHeight: 280,
-									backgroundColor: "LightGrey",
-								}}
-							>
-								{/* <Breadcrumb style={{ margin: '10px 0' }}>
-										<Breadcrumb.Item>Home</Breadcrumb.Item>
-										<Breadcrumb.Item>List</Breadcrumb.Item>
-										<Breadcrumb.Item>App</Breadcrumb.Item>
-										</Breadcrumb> */}
-
-								{this.listStocks()}
-							</Row>
-							<Row>
-								<Col span={18}>
-									<Content
-										className="site-layout-background"
-										style={{
-											padding: 12,
-											margin: 0,
-											minHeight: 280,
-											backgroundColor: "LightGrey",
-										}}
-									>
-										<Breadcrumb style={{ margin: "10px 0" }}>
-											<Breadcrumb.Item>Home</Breadcrumb.Item>
-											<Breadcrumb.Item>List</Breadcrumb.Item>
-											<Breadcrumb.Item>App</Breadcrumb.Item>
-										</Breadcrumb>
-
-										<StockDetail selectedStock={this.state.selectedStock} stock={this.state[this.state.selectedStock]} />
-									</Content>
-								</Col>
-							</Row>
-						</Layout>
-					</Layout>
+					<Stocks {...this.state} ></Stocks>
 				)}
-				{this.state.showpage === "dashboard" && <Dashboard state={this.state} />}
+				{this.state.showpage === "dashboard" && <Dashboard {...this.state} />}
 			</Layout>
 		);}
 }

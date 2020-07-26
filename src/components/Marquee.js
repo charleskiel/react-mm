@@ -1,35 +1,31 @@
 import React from "react";
+import _ from "lodash";
+import "./Marquee.scss";
 import "./Indicator.scss";
-class PriceIndicator extends React.Component {
-	state = { className: "" };
-
-	componentDidUpdate(prevProps, prevState, snapshot) {
-		if (prevProps.indicator !== this.props.indicator) {
-			if (prevProps.indicator < this.props.indicator) {
-				this.setState({ className: "up-on" });
-				setTimeout(() => this.setState({ className: "up" }), 100);
-			} else if (prevProps.indicator > this.props.indicator) {
-				this.setState({ className: "down-on" });
-				setTimeout(() => this.setState({ className: "down" }), 100);
-			} else {
-				this.setState({ className: "same-on" });
-				setTimeout(() => this.setState({ className: "same" }), 100);
-			}
+import StockCard from "./StockCard"
+class Marquee extends React.Component {
+	listStocks = () => {
+		
+		if (this.props.watchlists[7]) {
+			return this.props.watchlists[7].watchlistItems.map((stock) => {
+				return <StockCard setSelectedStock={this.setSelectedStock} key={stock.instrument.symbol} id={stock.instrument.symbol} stock={this.props[stock.instrument.symbol]} />;
+			});
 		}
-	}
-
-	componentDidMount() {
-		this.setState({ className: "same-on" });
-		setTimeout(() => this.setState({ className: "same" }), 500);
-	}
-
-	set = (state) => {
-		this.setState({ className: state });
 	};
 
+	item = () => {
+		return <span className="marqueeItem">{this.props.equity.key}</span>;
+	}
+
 	render() {
-		return <span className={this.state.className}>{this.props.indicator}</span>;
+
+
+		return (
+			<ul class="list-inline" className="list-inline"> {this.props.Marquee}
+			</ul>
+		);
 	}
 }
 
-export default PriceIndicator;
+
+export default Marquee;

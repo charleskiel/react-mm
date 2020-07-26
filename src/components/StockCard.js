@@ -10,6 +10,7 @@ export default class StockCard
 	extends React.Component {
 	state = {
 		data: [],
+		plColor : "darkgrey"
 	};
 	options = [
 		{
@@ -40,7 +41,7 @@ export default class StockCard
 	}
 	
 	exchange = () => {
-		console.log(this.props.stock["16"]);
+		//console.log(this.props.stock["16"]);
 		switch (this.props.stock["16"]) {
 			
 			case "n" :
@@ -66,6 +67,13 @@ export default class StockCard
 		}
 	}
 
+	backgroundcolor = () => {
+		// if (this.props.stock.key === "SPY" ) console.log("last", this.props.stock["3"]);
+		// if (this.props.stock.key === "SPY" ) console.log("last - open" ,this.props.stock["3"] - this.props.stock["28"]);
+		// if (this.props.stock.key === "SPY" ) console.log(this.props.stock["3"] - this.props.stock["29"]);
+		return { color: `rgb(${128 * (this.props.stock["3"] - this.props.stock["29"])}, 64, 64) ` };
+	}
+
 	render() {
 		//console.log(this.props.key)
 		//if(this.props.id === "TSLA") console.log(this.props)
@@ -73,24 +81,43 @@ export default class StockCard
 		//console.log(this.props)
 		return (
 			<div className="stockCard">
-				<div className="background">
-					{this.props.stock.key}
-				</div>
+				<background style={this.backgroundcolor()}>{this.props.stock.key}</background>
+				<div className="top">
+					<div className="description">
+						<span>{this.props.stock[25] ? this.props.stock[25].replace(" - Common Stock", "") : this.props.stock.key}</span>
+					</div>
 
-				<div className="description">{this.props.stock[25] ? this.props.stock[25].replace(" - Common Stock", "") : this.props.stock.key}</div>
-				{() => this.exchange}
-				<Row>
-					<Col flex={2}><h3>{<PriceIndicator indicator={this.props.stock["3"]} />}</h3></Col>
-					<Col flex={1}><h3>{<PriceIndicator indicator={this.props.stock["29"]} />}</h3></Col>
-				</Row>
-				<Row>
-					<Col flex={1}>Bid: {<PriceIndicator indicator={this.props.stock["1"]} />} </Col>
-					<Col flex={1}>Ask: {<PriceIndicator indicator={this.props.stock["2"]} />} </Col>
-				</Row>
-				<Row>
-					<Col flex={1}>Vol: {this.props.stock["8"]}</Col>
-					<Col flex={1}>{this.props.stock["14"]}</Col>
-				</Row>
+					<Row>
+						<Col span={10} className="bigStat">
+							{<PriceIndicator price={this.props.stock["3"]} />}
+						</Col>
+						<Col span={14}><div className="details">
+							<Row>
+								<Col span={6}>Bid: {<PriceIndicator price={this.props.stock["1"]} />}</Col>
+							</Row>
+
+							<Row>
+								<Col span={6}>Ask: {<PriceIndicator price={this.props.stock["1"]} />}</Col>
+							</Row>
+
+							<Row>
+								<Col span={12}>Volume: {<PriceIndicator price={this.props.stock["8"]} />}</Col>
+							</Row>
+							</div>
+						</Col>
+					</Row>
+				</div>
+				<div className="bottom">
+					<div className="info">
+						{this.exchange()}
+						<sendTo>
+							<sendTo1 onClick={() => this.props.commands.sendTo(1)}>-</sendTo1>
+							<sendTo2 onClick={() => this.props.commands.sendTo(2)}>-</sendTo2>
+							<sendTo3 onClick={() => this.props.commands.sendTo(3)}>-</sendTo3>
+							<sendTo4 onClick={() => this.props.commands.sendTo(4)}>-</sendTo4>
+						</sendTo>
+					</div>
+				</div>
 			</div>
 		);
 	}
