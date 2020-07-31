@@ -76,25 +76,21 @@ export default class Dashboard extends React.Component {
 									<h1>Account Status</h1>
 									<h4>Current Balance</h4>: {this.props.app.account[0].securitiesAccount.currentBalances.liquidationValue}
 									<h4>Initial Balance</h4>:
-									<table style={{ fontSize: "10px", width: "400px" }}>
-										<tr>
-											<th>Symbol</th>
-											<th>P/L</th>
-											<th>P/L%</th>
-											<th>Value</th>
-										</tr>
-
-										{this.props.app.account[0].securitiesAccount.positions.map((pos) => {
-											return (
-												<tr>
-													<td>{pos.instrument.symbol}</td>
-													<td>{pos.currentDayProfitLoss}</td>
-													<td>{pos.currentDayProfitLossPercentage * 100}%</td>
-													<td>{pos.marketValue}</td>
-												</tr>
-											);
-										})}
-									</table>
+									
+									{this.props.app.account[0].securitiesAccount.positions.map((pos) => {
+										// return <StockCard 
+										// 	setSelectedStock={this.setSelectedStock} 
+										// 	key={pos.instrument.symbol}
+										// 	id={pos.instrument.symbol}
+										// 	stock={this.props[pos.instrument.symbol]}
+										// />
+											return <tr>
+												<td>{pos.instrument.symbol}</td>
+												<td>{pos.currentDayProfitLoss}</td>
+												<td>{pos.currentDayProfitLossPercentage * 100}%</td>
+												<td>{pos.marketValue}</td>
+											</tr>
+									})}
 								</td>
 							</tr>
 							<tr span={6}>

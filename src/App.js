@@ -66,13 +66,13 @@ class App extends Component {
 		})
 		.then((response) => response.json())
 		.then((response) => {
-			//console.log(response);
+			console.log(response);
 			
 			this.setState(prevState => {
 				return {...prevState, ...response.stocks}})
 				//console.log(this.state)
 			this.getStatus()
-			//setInterval(this.getStatus, 10000)
+			setInterval(this.getStatus, 2000)
 			//setInterval(this.getState, 2000)
 			setInterval(this.updateStateFromTimer,500);
 
@@ -95,7 +95,8 @@ class App extends Component {
 				});
 				this.getWatchLists()
 				this.ws.onmessage = (event) => {
-					//console.log(event)
+					console.log(event)
+					debugger
 					this.msgRec(JSON.parse(event.data));
 				};
 				this.ws.send(login);
@@ -327,7 +328,7 @@ class App extends Component {
 				<Header {...this.state} switchView={this.switchView}/>
 
 				{this.state.showpage === "stocks" && (
-					<Stocks {...this.state} ></Stocks>
+					<Stocks {...this.state} setSelectedWatchlist={this.setSelectedWatchlist} ></Stocks>
 				)}
 				{this.state.showpage === "dashboard" && <Dashboard {...this.state} />}
 			</Layout>

@@ -71,14 +71,16 @@ export default class StockCard
 		// if (this.props.stock.key === "SPY" ) console.log("last", this.props.stock["3"]);
 		// if (this.props.stock.key === "SPY" ) console.log("last - open" ,this.props.stock["3"] - this.props.stock["28"]);
 		// if (this.props.stock.key === "SPY" ) console.log(this.props.stock["3"] - this.props.stock["29"]);
-		return { color: `rgb(${128 * (this.props.stock["3"] - this.props.stock["29"])}, 64, 64) ` };
+		//return { color: `rgb(${128 * (this.props.stock["3"] - this.props.stock["29"])}, 64, 64) ` };
+		return { color: `rgb(128, 64, 64) `};
 	}
 
 	render() {
 		//console.log(this.props.key)
 		//if(this.props.id === "TSLA") console.log(this.props)
 		//if(!this.props.id) console.log(this.props)
-		//console.log(this.props)
+		console.log(this.props)
+		console.log(this.props)
 		return (
 			<div className="stockCard">
 				<background style={this.backgroundcolor()}>{this.props.stock.key}</background>

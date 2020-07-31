@@ -90,7 +90,7 @@ export default class Stock extends React.Component {
 						}
 					>
 						{_.values(this.props.watchlists).map((list) => (
-							<Menu.Item key={list.watchlistId} onClick={() => this.setSelectedWatchlist(list.watchlistId)}>
+							<Menu.Item key={list.watchlistId} onClick={() => this.props.setSelectedWatchlist(list.watchlistId)}>
 								{list.name}
 							</Menu.Item>
 						))}
@@ -139,13 +139,7 @@ export default class Stock extends React.Component {
 				<Row>
 					<Col span={18}>
 						<Content
-							className="site-layout-background"
-							style={{
-								padding: 12,
-								margin: 0,
-								minHeight: 280,
-								backgroundColor: "LightGrey",
-							}}
+
 						>
 							<Breadcrumb style={{ margin: "10px 0" }}>
 								<Breadcrumb.Item>Home</Breadcrumb.Item>
