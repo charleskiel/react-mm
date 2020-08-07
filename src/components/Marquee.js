@@ -5,7 +5,7 @@ import "./Indicator.scss";
 import StockCard from "./StockCard"
 class Marquee extends React.Component {
 	listStocks = () => {
-		
+		console.log(this.props)
 		if (this.props.watchlists[7]) {
 			return this.props.watchlists[7].watchlistItems.map((stock) => {
 				return <StockCard setSelectedStock={this.setSelectedStock} key={stock.instrument.symbol} id={stock.instrument.symbol} stock={this.props[stock.instrument.symbol]} />;

@@ -1,19 +1,41 @@
 import * as React from "react";
-import { Layout, Menu} from "antd";
+import {Badge, Layout, Menu} from "antd";
 import StockCard from "./StockCard";
-import "./Dashboard.scss"
+import currency from "currency.js";
+import PriceIndicator from "./PriceIndicator";
+import "./Dashboard.scss";
 import _ from "lodash";
 import { UserOutlined, LaptopOutlined, NotificationOutlined } from "@ant-design/icons";
 import moment from "moment";
 const { SubMenu } = Menu;
 const { Content, Sider } = Layout;
-
+//{currency().format()}
 export default class Dashboard extends React.Component {
 	state = {
 		data: [],
 	};
-	showcard = () => {
-		return <StockCard stock={this.props.stocks.SPY}/>
+	positions = (positions) => {
+
+		return positions.map(pos => {
+			return (
+				<tr>
+					<td>
+						<position>{pos.shortQuantity > 0 ? <span className="short">- {pos.shortQuantity} </span> : <span className="long">+ {pos.longQuantity}</span>}</position>
+					</td>
+
+					{pos.instrument.assetType === "OPTION" ? <td>{pos.instrument.underlyingSymbol}</td> : <td>{pos.instrument.symbol}</td>}
+
+					<td>{pos.instrument.assetType}</td>
+					{pos.instrument.assetType === "OPTION" ? <td>{pos.instrument.description} </td> : <td>{this.props[pos.instrument.symbol][25]}</td>}
+
+					<td className="plPc">{currency(pos.currentDayProfitLossPercentage * 100).value}%</td>
+					<td className="pl">{currency(pos.currentDayProfitLoss).format()}</td>
+					{/* <td className="mkvalue" >{currency(pos.marketValue).format()}</td> */}
+					<td className="mkvalue" ><PriceIndicator price={pos.marketValue} /></td>
+				</tr>
+			);
+		})
+
 	}
 	render() {
 		//console.log(this.props);
@@ -50,7 +72,7 @@ export default class Dashboard extends React.Component {
 							<Menu.Item key="7">option7</Menu.Item>
 							<Menu.Item key="8">option8</Menu.Item>
 						</SubMenu>
-						
+
 						<SubMenu
 							key="sub3"
 							title={
@@ -70,139 +92,136 @@ export default class Dashboard extends React.Component {
 				<Layout className="dashboard">
 					<h1>DASHBOARD</h1>
 					{this.props.app && (
-						<table>
-							<tr span={6}>
-								<td style={{ verticalAlign: "top" }}>
-									<h1>Account Status</h1>
-									<h4>Current Balance</h4>: {this.props.app.account[0].securitiesAccount.currentBalances.liquidationValue}
-									<h4>Initial Balance</h4>:
-									
-									{this.props.app.account[0].securitiesAccount.positions.map((pos) => {
-										// return <StockCard 
-										// 	setSelectedStock={this.setSelectedStock} 
-										// 	key={pos.instrument.symbol}
-										// 	id={pos.instrument.symbol}
-										// 	stock={this.props[pos.instrument.symbol]}
-										// />
-											return <tr>
-												<td>{pos.instrument.symbol}</td>
-												<td>{pos.currentDayProfitLoss}</td>
-												<td>{pos.currentDayProfitLossPercentage * 100}%</td>
-												<td>{pos.marketValue}</td>
-											</tr>
-									})}
-								</td>
-							</tr>
-							<tr span={6}>
+						<div>
+							<h1>Account Status</h1>
+							<div><strong>Current Balance</strong> : {currency(this.props.app.account[0].securitiesAccount.currentBalances.liquidationValue).format()} </div>
+							{/* <div><strong>Current Balance</strong> : {currency(this.props.app.account[0].securitiesAccount.currentBalances.liquidationValue).format()} ({this.props.app.account[0].securitiesAccount.currentBalances.liquidationValue /this.props.app.account[0].securitiesAccount.initialBalances.liquidationValue })  </div> */}
+							<div><strong>Initial Balance</strong> : {currency(this.props.app.account[0].securitiesAccount.initialBalances.liquidationValue).format()}</div>
+							<div><strong>Stock Buying Power</strong> : <span>{currency(this.props.app.account[0].securitiesAccount.projectedBalances.stockBuyingPower).format()}</span></div>
+							<table className="accountTable">
+								<tr>
+									<th>Side</th>
+									<th>Key</th>
+									<th>Type</th>
+									<th>Name</th>
+									<th>P/L %</th>
+									<th>Total P/L</th>
+									<th>Market Value</th>
+								</tr>
 
-								<td style={{ verticalAlign: "top" }}>
-									NYSE Actives
-									{_.values(this.props.actives.ACTIVES_NYSE).map((act) => {
-										return (
-											<div>
-												<small>({act.sampleDuration / 60}min)</small>
-												<table style={{ fontSize: "10px", width: "400px" }}>
-													<tr>
-														<th>Symbol</th>
-														<th>Volume</th>
-														<th>Price Chng</th>
-													</tr>
-													{act.groups.map((pos) => {
-														return (
-															<tr>
-																<td>{pos.symbol}</td>
-																<td>{pos.volume}</td>
-																<td>{pos.priceChange}</td>
-															</tr>
-														);
-													})}
-												</table>
-											</div>
-										);
-									})}
-								</td>
-								<td style={{ verticalAlign: "top" }}>
-									NASDAQ Actives
-									{_.values(this.props.actives.ACTIVES_NASDAQ).map((act) => {
-										return (
-											<div>
-												<small>({act.sampleDuration / 60}min)</small>
-												<table style={{ fontSize: "10px", width: "400px" }}>
-													<tr>
-														<th>Symbol</th>
-														<th>Volume</th>
-														<th>Price Chng</th>
-													</tr>
-													{act.groups.map((pos) => {
-														return (
-															<tr style={{ background: "darkGrey", border: "1px solid white" }}>
-																<td>{pos.symbol}</td>
-																<td>{pos.volume}</td>
-																<td>{pos.priceChange}</td>
-															</tr>
-														);
-													})}
-												</table>
-											</div>
-										);
-									})}
-								</td>
-								<td style={{ verticalAlign: "top" }}>
-									OTCBB Actives
-									{_.values(this.props.actives.ACTIVES_OTCBB).map((act) => {
-										return (
-											<div>
-												<small>({act.sampleDuration / 60}min)</small>
-												<table style={{ fontSize: "10px", width: "400px" }}>
-													<tr>
-														<th>Symbol</th>
-														<th>Volume</th>
-														<th>Price Chng</th>
-													</tr>
-													{act.groups.map((pos) => {
-														return (
-															<tr>
-																<td>{pos.symbol}</td>
-																<td>{pos.volume}</td>
-																<td>{pos.priceChange}</td>
-															</tr>
-														);
-													})}
-												</table>
-											</div>
-										);
-									})}
-								</td>
-								<td style={{ verticalAlign: "top" }}>
-									Options Actives
-									{_.values(this.props.actives.ACTIVES_OPTIONS).map((act) => {
-										return (
-											<div>
-												<small>({act.sampleDuration / 60}min)</small>
-												<table style={{ fontSize: "10px", width: "400px" }}>
-													<tr>
-														<th>Symbol</th>
-														<th>Name</th>
-														<th>Volume</th>
-														<th>Price Chng</th>
-													</tr>
-													{act.groups.map((pos) => {
-														return (
-															<tr>
-																<td>{pos.symbol}</td>
-																<td>{pos.name}</td>
-																<td>{pos.volume}</td>
-																<td>{pos.priceChange}</td>
-															</tr>
-														);
-													})}
-												</table>
-											</div>
-										);
-									})}
-								</td>
-							</tr>
-						</table>
+								{this.positions(this.props.app.account[0].securitiesAccount.positions)}
+							</table>
+							<table>
+								<tr span={6}>
+									<td style={{ verticalAlign: "top" }}>
+										NYSE Actives
+										{_.values(this.props.actives.ACTIVES_NYSE).map((act) => {
+											return (
+												<tr>
+													<small>({act.sampleDuration / 60}min)</small>
+													<table style={{ fontSize: "10px", width: "400px" }}>
+														<tr>
+															<th>Symbol</th>
+															<th>Volume</th>
+															<th>Price Chng</th>
+														</tr>
+														{act.groups.map((pos) => {
+															return (
+																<tr>
+																	<td>{pos.symbol}</td>
+																	<td>{pos.volume}</td>
+																	<td>{pos.priceChange}</td>
+																</tr>
+															);
+														})}
+													</table>
+												</tr>
+											);
+										})}
+									</td>
+									<td style={{ verticalAlign: "top" }}>
+										NASDAQ Actives
+										{_.values(this.props.actives.ACTIVES_NASDAQ).map((act) => {
+											return (
+												<tr>
+													<small>({act.sampleDuration / 60}min)</small>
+													<table style={{ fontSize: "10px", width: "400px" }}>
+														<tr>
+															<th>Symbol</th>
+															<th>Volume</th>
+															<th>Price Chng</th>
+														</tr>
+														{act.groups.map((pos) => {
+															return (
+																<tr>
+																	<td>{pos.symbol}</td>
+																	<td>{pos.volume}</td>
+																	<td>{pos.priceChange}</td>
+																</tr>
+															);
+														})}
+													</table>
+												</tr>
+											);
+										})}
+									</td>
+									<td style={{ verticalAlign: "top" }}>
+										OTCBB Actives
+										{_.values(this.props.actives.ACTIVES_OTCBB).map((act) => {
+											return (
+												<tr>
+													<small>({act.sampleDuration / 60}min)</small>
+													<table style={{ fontSize: "10px", width: "400px" }}>
+														<tr>
+															<th>Symbol</th>
+															<th>Volume</th>
+															<th>Price Chng</th>
+														</tr>
+														{act.groups.map((pos) => {
+															return (
+																<tr>
+																	<td>{pos.symbol}</td>
+																	<td>{pos.volume}</td>
+																	<td>{pos.priceChange}</td>
+																</tr>
+															);
+														})}
+													</table>
+												</tr>
+											);
+										})}
+									</td>
+									<td style={{ verticalAlign: "top" }}>
+										Options Actives
+										{_.values(this.props.actives.ACTIVES_OPTIONS).map((act) => {
+											return (
+												<tr>
+													<small>({act.sampleDuration / 60}min)</small>
+													<table style={{ fontSize: "10px", width: "400px" }}>
+														<tr>
+															<th>Symbol</th>
+															<th>Name</th>
+															<th>Volume</th>
+															<th>Price Chng</th>
+														</tr>
+														{act.groups.map((pos) => {
+															return (
+																<tr>
+																	<td>{pos.symbol}</td>
+																	<td>{pos.name}</td>
+																	<td>{pos.volume}</td>
+																	<td>{pos.priceChange}</td>
+																</tr>
+															);
+														})}
+													</table>
+												</tr>
+											);
+										})}
+									</td>
+								</tr>
+							</table>
+						</div>
 					)}
 				</Layout>
 			</Layout>

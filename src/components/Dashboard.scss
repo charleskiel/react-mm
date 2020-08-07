@@ -1,0 +1,67 @@
+
+h1{
+	font-size: large;
+}
+
+h4{
+	font-size: medium;
+}
+.ant-layout-content{
+	font-Size: "10px";
+	
+	display: inline-block;
+	
+}
+
+position{
+	font-weight: 700;	
+	.short{color: red;}
+	.long{color: green;}
+}
+
+.ant-card{
+	font-size: 1em;
+	
+	margin-bottom: 1em;
+	
+	
+	button{
+		
+		font-size: 10px;
+	}
+	.ant-card-body{
+		padding: 1em;
+		margin: 0px;
+		line-height: 0em;
+	}
+	
+	.ant-card-head-title{
+			padding: 0;
+		}
+}
+
+.accountTable{
+	font-size: small;
+	line-height: .1em;
+	background-color: rgba($color: #0f0f0fce, $alpha: 1.0);
+	tr{
+		
+		padding: 2em;
+		border-bottom: 4px;
+		border-bottom-color: red($color: #b80000);
+	}
+	th,td{
+		margin: 2em;
+		padding: 1em;
+	}
+	.pl{
+		text-align: right;
+	}
+	.plPc{
+		text-align: right;
+	}
+	.mkvalue{
+		text-align: right;
+	}
+
+}

@@ -4,7 +4,11 @@ import * as React from 'react';
 import * as $ from 'jquery';
 import "../App.scss";
 import "./StockCard.scss";
-
+import moment from 'moment'
+import CanvasJSReact from '../lib/canvasjs.react';
+//var CanvasJSReact = require('./canvasjs.react');
+var CanvasJS = CanvasJSReact.CanvasJS;
+var CanvasJSChart = CanvasJSReact.CanvasJSChart;
 
 export default class StockCard
 	extends React.Component {
@@ -67,6 +71,40 @@ export default class StockCard
 		}
 	}
 
+	options = {
+		animationEnabled: true,
+		theme: "dark1",
+		width: 400,
+		height: 200,
+		backgroundColor: "rgba($color: #000000, $alpha: .0);",
+		axisX:{
+			valueFormatString: "DD MMM",
+			crosshair: {
+				enabled: true,
+				snapToDataPoint: true
+			}
+		},
+		axisY: {
+			minimum : this.props.stock[13],
+			maximum : this.props.stock[12],
+			crosshair: {
+				enabled: true,
+				snapToDataPoint: true,
+				
+			}
+		},
+		data: [{
+			type: "line",
+			lineThickness: 1,
+			xValueFormatString: "DD MMM",
+			yValueFormatString: "$##0.00",
+			dataPoints: [...this.props.stock.spark.map(tick => {
+				return {x: new Date(tick[7]) ,y: tick[3] }
+				})
+			]
+		}]
+	}
+	
 	backgroundcolor = () => {
 		// if (this.props.stock.key === "SPY" ) console.log("last", this.props.stock["3"]);
 		// if (this.props.stock.key === "SPY" ) console.log("last - open" ,this.props.stock["3"] - this.props.stock["28"]);
@@ -79,38 +117,42 @@ export default class StockCard
 		//console.log(this.props.key)
 		//if(this.props.id === "TSLA") console.log(this.props)
 		//if(!this.props.id) console.log(this.props)
-		console.log(this.props)
-		console.log(this.props)
+		//console.log(this.props)
 		return (
-			<div className="stockCard">
+			<tr className="stockCard">
 				<background style={this.backgroundcolor()}>{this.props.stock.key}</background>
-				<div className="top">
-					<div className="description">
-						<span>{this.props.stock[25] ? this.props.stock[25].replace(" - Common Stock", "") : this.props.stock.key}</span>
-					</div>
-
-					<Row>
-						<Col span={10} className="bigStat">
-							{<PriceIndicator price={this.props.stock["3"]} />}
-						</Col>
-						<Col span={14}><div className="details">
-							<Row>
-								<Col span={6}>Bid: {<PriceIndicator price={this.props.stock["1"]} />}</Col>
-							</Row>
-
-							<Row>
-								<Col span={6}>Ask: {<PriceIndicator price={this.props.stock["1"]} />}</Col>
-							</Row>
-
-							<Row>
-								<Col span={12}>Volume: {<PriceIndicator price={this.props.stock["8"]} />}</Col>
-							</Row>
-							</div>
-						</Col>
-					</Row>
+				<div className="chart" style={this.backgroundcolor()}>
+					<CanvasJSChart options = {this.options} 
+					/* onRef={ref => this.chart = ref} */
+					/>
 				</div>
-				<div className="bottom">
-					<div className="info">
+					<tr>
+						<span className="description">{this.props.stock[25] ? this.props.stock[25].replace(" - Common Stock", "") : this.props.stock.key}</span>
+					</tr>
+				<tr className="top">
+
+					<tr className="stats">
+						<td className="bigStat">
+							{<PriceIndicator price={this.props.stock["3"]} />}
+						</td>
+						<td className="details" >
+							<tr>
+								<td>Bid: {<PriceIndicator price={this.props.stock["1"]} />}</td>
+							</tr>
+
+							<tr>
+								<td>Ask: {<PriceIndicator price={this.props.stock["1"]} />}</td>
+							</tr>
+
+							<tr>
+								<td>Volume: {<PriceIndicator price={this.props.stock["8"]} />}</td>
+							</tr>
+						</td>
+					</tr>
+				</tr>
+				
+				<tr className="bottom">
+					<tr className="info">
 						{this.exchange()}
 						<sendTo>
 							<sendTo1 onClick={() => this.props.commands.sendTo(1)}>-</sendTo1>
@@ -118,9 +160,9 @@ export default class StockCard
 							<sendTo3 onClick={() => this.props.commands.sendTo(3)}>-</sendTo3>
 							<sendTo4 onClick={() => this.props.commands.sendTo(4)}>-</sendTo4>
 						</sendTo>
-					</div>
-				</div>
-			</div>
+					</tr>
+				</tr>
+			</tr>
 		);
 	}
 }

@@ -8,21 +8,32 @@ class PriceIndicator extends React.Component {
 		if (prevProps.price !== this.props.price) {
 			if (prevProps.price < this.props.price) {
 				this.setState({ className: "up-on" });
-				if (!this.props.startPrice) setTimeout(() => this.setState({ className: "up" }), 100);
+				//if (!this.props.startPrice) setTimeout(() => this.setState({ className: "up" }), 100);
 			} else if (prevProps.price > this.props.price) {
 				this.setState({ className: "down-on" });
-				if (!this.props.startPrice) setTimeout(() => this.setState({ className: "down" }), 100);
+				//if (!this.props.startPrice) setTimeout(() => this.setState({ className: "down" }), 100);
 			} else {
 				this.setState({ className: "same-on" });
-				if (!this.props.startPrice) setTimeout(() => this.setState({ className: "same" }), 100);
+				//if (!this.props.startPrice) setTimeout(() => this.setState({ className: "same" }), 100);
 			}
 
 
 
 			if (this.props.startPrice) {
-				if (prevProps.startPrice < this.props.price) {
+				if (this.props.startPrice < this.props.price) {
 					setTimeout(() => this.setState({ className: "down" }), 100);
-				} else if (prevProps.startPrice > this.props.price) {
+				} else if (this.props.startPrice > this.props.price) {
+					setTimeout(() => this.setState({ className: "up" }), 100);
+				} else {
+					setTimeout(() => this.setState({ className: "same" }), 100);
+				}
+
+			}
+			else
+			{
+				if (prevProps.price < this.props.price) {
+					setTimeout(() => this.setState({ className: "down" }), 100);
+				} else if (prevProps.price > this.props.price) {
 					setTimeout(() => this.setState({ className: "up" }), 100);
 				} else {
 					setTimeout(() => this.setState({ className: "same" }), 100);

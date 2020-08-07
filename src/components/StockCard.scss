@@ -11,9 +11,15 @@
 	
 	.top{
 		line-height: 1em;
+		width: 400px;
 		padding: .5em;
 		background-color: rgba($color: #000000, $alpha: .25);
+		.stats{
+			width: 400px;
+			vertical-align: top;
+		}
 		.bigStat{
+			width : 200px;
 			$padding: .3em;
 			font-size: 3.5em;
 			opacity: .9;
@@ -35,11 +41,14 @@
 
 	.description {  
 		z-index: 2;
-		font-size: 1.3em;
+		font-size: 1em;
 		line-height: 1.2em;
-		overflow:hidden;
+		overflow: hidden;
+		white-space:nowrap;
 		text-overflow: ellipsis;
+		float: left;
 		//background-color: rgba($color: #000000, $alpha: .5);
+		width : 390px;
 		
 		span{
 			position: relative;
@@ -62,6 +71,21 @@
 		bottom: 0;
 		right: 0;
 		z-index: -1;
+		overflow: hidden;
+		font-size: 6em;
+		   pointer-events:none;
+		   opacity: .5;
+	}
+
+	.chart {
+		height: 200px;
+		width: inherit;
+		position: absolute;
+		top: 0em;
+		left: 0em;
+		bottom: 0;
+		right: 0;
+		z-index: -2;
 		overflow: hidden;
 		font-size: 6em;
 		   pointer-events:none;

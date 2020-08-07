@@ -3,7 +3,7 @@ import React, { Component } from "react";
 import "./App.scss";
 import Header from "./components/Header"
 import _ from "lodash"
-import { Layout, Menu, Breadcrumb,Row, Col, Card } from 'antd';
+import { Table, Layout, Menu, Breadcrumb,Row, Col, Card } from 'antd';
 import { UserOutlined, LaptopOutlined, NotificationOutlined } from '@ant-design/icons';
 import Stocks from "./components/Stocks";
 import Dashboard from "./components/Dashboard";
@@ -34,7 +34,7 @@ class App extends Component {
 	state = {
 		equities: {},
 		watchlists: {},
-		selectedWatchlist : "default",
+		selectedWatchlist : "stocks",
 		systemTime: 0,
 		selectedStock: "",
 		status: {},
@@ -49,9 +49,7 @@ class App extends Component {
 
 	ws = {};
 	rid = 0;
-	requestid = () => {
-		return (this.rid = +1);
-	};
+	requestid = () => {return (this.rid = +1);};
 
 	ws = new Object()
 	jsonToQueryString = (json) => {return Object.keys(json).map(function (key) {return (encodeURIComponent(key) +"=" +encodeURIComponent(json[key]));}).join("&");};
@@ -66,8 +64,10 @@ class App extends Component {
 		})
 		.then((response) => response.json())
 		.then((response) => {
-			console.log(response);
-			
+			let test = []
+			test["one"] = { key : 1, 1: "wegwe", 2: "22ewsfs"}
+			console.log(response.stocks);
+			console.log(test)
 			this.setState(prevState => {
 				return {...prevState, ...response.stocks}})
 				//console.log(this.state)
@@ -95,8 +95,7 @@ class App extends Component {
 				});
 				this.getWatchLists()
 				this.ws.onmessage = (event) => {
-					console.log(event)
-					debugger
+					//console.log(event)
 					this.msgRec(JSON.parse(event.data));
 				};
 				this.ws.send(login);
@@ -122,30 +121,42 @@ class App extends Component {
 					//console.log(m);
 					
 					switch (m.service) {
+						case "CHART_EQUITY":
+							m.content.forEach(eq => {
+								if (this.ticktimestamp >= Date.now() - 1000)
+								{
+									this.setState({pps: (this.tickcount / (Date.now() - this.ticktimestamp ) * 1000 )})
+									this.ticktimestamp = Date.now()
+									this.tickcount = 0
+								} 
+								if (this.tickbuffer[eq.key]) this.tickbuffer[eq.key] = { ...this.state[eq.key], ...this.tickbuffer[eq.key], spark: [...this.tickbuffer[eq.key].spark, eq] };
+								this.tickcount += 1
+							});
+							break;
 						case "QUOTE":
 							//console.log(m)
-							m.content.forEach(eq => this.equityTick(eq));
+							m.content.forEach(eq => {
+								//if (this.tickbuffer[eq.key]) console.log(this.tickbuffer[eq.key])
+								this.tickbuffer[eq.key] = { ...this.state[eq.key],    ...this.tickbuffer[eq.key], ...eq }
+								this.tickcount += 1
+							})
+							
 							break;
 						case "ACTIVES_NASDAQ":
-							//console.log("Nasdaq Actives")
 							//console.log(m)
 							break;
 						case "ACTIVES_NYSE":
-							//console.log("NYSE Actives")
 							//console.log(m)
 							break;
 						case "ACTIVES_OPTIONS":
-							//console.log("OPTIONS Actives")
 							//console.log(m)
 							break;
 						case "ACTIVES_OTCBB":
-							//console.log("OTCBB Actives")
 							//console.log(m)
 							break;
 						case "TIMESALE_FUTURES":
 							break;
 						default:
-							//console.log(`Default Message: ${msg}`);
 							//console.log(m);
 					}
 				});
@@ -202,22 +213,7 @@ class App extends Component {
 	tickcount = 0
 
 	tickbuffer = {};
-	equityTick = (tick) => {
-		if (this.ticktimestamp >= Date.now() - 1000)
-		{
-			this.setState({pps: (this.tickcount / (Date.now() - this.ticktimestamp ) * 1000 )})
-			this.ticktimestamp = Date.now()
-			this.tickcount = 0
-		} 
-
-		this.tickbuffer[tick.key] = {...this.tickbuffer[tick.key],...this.state[tick.key],  ...tick}
-		this.tickcount += 1
-
-		if (this.tickcount < 40) {
-			// console.log(tick);
-			// console.log(this.state)
-		}
-	};
+	
 
 	updateStateFromTimer = () => {
 		let excTime = Date.now();
@@ -327,11 +323,11 @@ class App extends Component {
 			<Layout>
 				<Header {...this.state} switchView={this.switchView}/>
 
-				{this.state.showpage === "stocks" && (
-					<Stocks {...this.state} setSelectedWatchlist={this.setSelectedWatchlist} ></Stocks>
-				)}
-				{this.state.showpage === "dashboard" && <Dashboard {...this.state} />}
-			</Layout>
-		);}
+				{this.state.showpage === "stocks" && (<Stocks {...this.state} setSelectedWatchlist={this.setSelectedWatchlist} ></Stocks>)}
+				{this.state.showpage === "dashboard" && (<Dashboard {...this.state} />)}
+				{this.state.showpage === "crypto" && (<div>[Coinbase API page coming soon]</div>)}
+				{this.state.showpage === "admin" && (<div>[working on this]</div>)}
+				{this.state.showpage === "about" && (<div>[Check back in a few hours]</div>)}
+				</Layout >);}
 }
 export default App;

@@ -26,7 +26,7 @@ export default class Stock extends React.Component {
 					return <StockCard 
 						setSelectedStock={this.setSelectedStock} 
 						key={stock.instrument.symbol}
-						id={stock.instrument.symbol}stock={this.props[stock.instrument.symbol]}
+						id={stock.instrument.symbol} stock={this.props[stock.instrument.symbol]}
 					/>
 				})
 			)
