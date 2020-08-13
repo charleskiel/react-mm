@@ -44,7 +44,8 @@ class App extends Component {
 		ACTIVES_NYSE: {},
 		ACTIVES_OPTIONS: {},
 		ACTIVES_OTCBB: {},
-		showpage: "dashboard"
+		showpage: "dashboard",
+		masking: true
 	};
 
 	ws = {};
@@ -117,60 +118,57 @@ class App extends Component {
 			this.setState({heartbeat: msg.notify[0].heartbeat})
 		}
 
-		if (msg.data) {
-			msg.data.forEach((m) => {
-				//console.log(m);
-				switch (m.service) {
-					case "CHART_EQUITY":
-						m.content.forEach(eq => {
-							if (this.ticktimestamp >= Date.now() - 1000)
-							{
-								this.setState({pps: (this.tickcount / (Date.now() - this.ticktimestamp ) * 1000 )})
-								this.ticktimestamp = Date.now()
-								this.tickcount = 0
-							} 
-							if (this.tickbuffer[eq.key]) this.tickbuffer[eq.key] = { ...this.state[eq.key], ...this.tickbuffer[eq.key], spark: [...this.tickbuffer[eq.key].spark, eq] };
-							this.tickcount += 1
-						});
-						break;
-					case "QUOTE":
-						//console.log(m)
-						m.content.forEach(eq => {
-							//if (this.tickbuffer[eq.key]) console.log(this.tickbuffer[eq.key])
-							this.tickbuffer[eq.key] = { ...this.state[eq.key],    ...this.tickbuffer[eq.key], ...eq }
-							this.tickcount += 1
-						})
-						
-						break;
-					case "ACTIVES_NASDAQ":
-						//console.log(m)
-						break;
-					case "ACTIVES_NYSE":
-						//console.log(m)
-						break;
-					case "ACTIVES_OPTIONS":
-						//console.log(m)
-						break;
-					case "ACTIVES_OTCBB":
-						//console.log(m)
-						break;
-					case "TIMESALE_FUTURES":
-						break;
-					default:
-						//console.log(m);
-				}
-			});
+		if (msg.content) {
+			//console.log(m);
+			switch (msg.service) {
+				case "CHART_EQUITY":
+					msg.content.forEach(eq => {
+						if (this.ticktimestamp >= Date.now() - 1000)
+						{
+							this.setState({pps: (this.tickcount / (Date.now() - this.ticktimestamp ) * 1000 )})
+							this.ticktimestamp = Date.now()
+							this.tickcount = 0
+						} 
+						if (this.tickbuffer[eq.key]) this.tickbuffer[eq.key] = { ...this.tickbuffer[eq.key], spark: [...this.state[eq.key].spark, eq] };
+						this.tickcount += 1
+					});
+					break;
+				case "QUOTE":
+					//console.log(m)
+					msg.content.forEach(eq => {
+						this.tickbuffer[eq.key] = { ...this.state[eq.key],    ...this.tickbuffer[eq.key], ...eq }
+						this.tickcount += 1
+					})
+					
+					break;
+				case "ACTIVES_NASDAQ":
+					//console.log(m)
+					break;
+				case "ACTIVES_NYSE":
+					//console.log(m)
+					break;
+				case "ACTIVES_OPTIONS":
+					//console.log(m)
+					break;
+				case "ACTIVES_OTCBB":
+					//console.log(m)
+					break;
+				case "TIMESALE_FUTURES":
+					break;
+				default:
+					//console.log(m);
+			}
 		}
 
 		if (msg.response) {
 			msg.response.forEach((m) => {
 				switch (m.service) {
 					case "ADMIN":
-						if (m.content.code === 0) {
-							console.log(`Login Sucuess!`, m.content.code, m.content.msg);
+						if (msg.content.code === 0) {
+							console.log(`Login Sucuess!`, msg.content.code, msg.content.msg);
 							this.initStream()
 						} else {
-							console.log(`LOGIN FAILED!!`, m.content.code, m.content.msg);
+							console.log(`LOGIN FAILED!!`, msg.content.code, msg.content.msg);
 						}
 						break;
 					default:
@@ -222,6 +220,7 @@ class App extends Component {
 		});
 		//console.log(Date.now() - excTime,"ms");
 		this.tickbuffer = {}
+		//console.log(this.state["AMD"])
 	}
 
 	setSelectedStock = (stock) => {
@@ -282,7 +281,6 @@ class App extends Component {
 				return { ...prevState, ...state };
 			});
 
-			console.log(this.state)
 		});
 
 	 }

@@ -11,41 +11,41 @@ $indicatorFontWeight: 'bold';
 $indicatorFontSize: '1em';
 
 .base{
-	font-size: $indicatorFontSize;
-	font-weight: 200;
-	font-family: $indicatorFont;
+	//font-size: $indicatorFontSize;
+	//font-weight: 200;
+	//font-family: $indicatorFont;
 }
 
 .up-on{
-	@extend .base;
+	//@extend .base;
 	color:rgb($brightness, 255, $brightness);
 }
 
 .down-on{
-	@extend .base;
+	//@extend .base;
 	color: rgb(255, $brightness, $brightness);
 }
 
 .same-on{
-	@extend .base;
+	//@extend .base;
 	color: rgb(255, 255, 255);
 }
 
 
 .up{
-	@extend .base;
+	//@extend .base;
 	color: rgb($brightness, 210, $brightness);
 	transition: background $fadeSpeed;
 	transition: color $fadeSpeed;
 }
 .down{
-	@extend .base;
+	//@extend .base;
 	color: rgb(210, $brightness, $brightness);
 	transition: background $fadeSpeed;
 	transition: color $fadeSpeed;
 }
 .same{
-	@extend .base;
+	//@extend .base;
 	color:  rgb(210, 210, 210);
 	transition: background $fadeSpeed;
 	transition: color $fadeSpeed;
