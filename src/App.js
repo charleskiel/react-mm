@@ -115,72 +115,72 @@ class App extends Component {
 		//console.log(msg)
 		if (msg.notify) {
 			this.setState({heartbeat: msg.notify[0].heartbeat})
-		} else {
-			if (msg.data) {
-				msg.data.forEach((m) => {
-					//console.log(m);
-					
-					switch (m.service) {
-						case "CHART_EQUITY":
-							m.content.forEach(eq => {
-								if (this.ticktimestamp >= Date.now() - 1000)
-								{
-									this.setState({pps: (this.tickcount / (Date.now() - this.ticktimestamp ) * 1000 )})
-									this.ticktimestamp = Date.now()
-									this.tickcount = 0
-								} 
-								if (this.tickbuffer[eq.key]) this.tickbuffer[eq.key] = { ...this.state[eq.key], ...this.tickbuffer[eq.key], spark: [...this.tickbuffer[eq.key].spark, eq] };
-								this.tickcount += 1
-							});
-							break;
-						case "QUOTE":
-							//console.log(m)
-							m.content.forEach(eq => {
-								//if (this.tickbuffer[eq.key]) console.log(this.tickbuffer[eq.key])
-								this.tickbuffer[eq.key] = { ...this.state[eq.key],    ...this.tickbuffer[eq.key], ...eq }
-								this.tickcount += 1
-							})
-							
-							break;
-						case "ACTIVES_NASDAQ":
-							//console.log(m)
-							break;
-						case "ACTIVES_NYSE":
-							//console.log(m)
-							break;
-						case "ACTIVES_OPTIONS":
-							//console.log(m)
-							break;
-						case "ACTIVES_OTCBB":
-							//console.log(m)
-							break;
-						case "TIMESALE_FUTURES":
-							break;
-						default:
-							//console.log(m);
-					}
-				});
-			}
-
-			if (msg.response) {
-				msg.response.forEach((m) => {
-					switch (m.service) {
-						case "ADMIN":
-							if (m.content.code === 0) {
-								console.log(`Login Sucuess!`, m.content.code, m.content.msg);
-								this.initStream()
-							} else {
-								console.log(`LOGIN FAILED!!`, m.content.code, m.content.msg);
-							}
-							break;
-						default:
-							console.log(`Default Message`,msg)
-							break;
-					}
-				});
-			}
 		}
-	};
+
+		if (msg.data) {
+			msg.data.forEach((m) => {
+				//console.log(m);
+				switch (m.service) {
+					case "CHART_EQUITY":
+						m.content.forEach(eq => {
+							if (this.ticktimestamp >= Date.now() - 1000)
+							{
+								this.setState({pps: (this.tickcount / (Date.now() - this.ticktimestamp ) * 1000 )})
+								this.ticktimestamp = Date.now()
+								this.tickcount = 0
+							} 
+							if (this.tickbuffer[eq.key]) this.tickbuffer[eq.key] = { ...this.state[eq.key], ...this.tickbuffer[eq.key], spark: [...this.tickbuffer[eq.key].spark, eq] };
+							this.tickcount += 1
+						});
+						break;
+					case "QUOTE":
+						//console.log(m)
+						m.content.forEach(eq => {
+							//if (this.tickbuffer[eq.key]) console.log(this.tickbuffer[eq.key])
+							this.tickbuffer[eq.key] = { ...this.state[eq.key],    ...this.tickbuffer[eq.key], ...eq }
+							this.tickcount += 1
+						})
+						
+						break;
+					case "ACTIVES_NASDAQ":
+						//console.log(m)
+						break;
+					case "ACTIVES_NYSE":
+						//console.log(m)
+						break;
+					case "ACTIVES_OPTIONS":
+						//console.log(m)
+						break;
+					case "ACTIVES_OTCBB":
+						//console.log(m)
+						break;
+					case "TIMESALE_FUTURES":
+						break;
+					default:
+						//console.log(m);
+				}
+			});
+		}
+
+		if (msg.response) {
+			msg.response.forEach((m) => {
+				switch (m.service) {
+					case "ADMIN":
+						if (m.content.code === 0) {
+							console.log(`Login Sucuess!`, m.content.code, m.content.msg);
+							this.initStream()
+						} else {
+							console.log(`LOGIN FAILED!!`, m.content.code, m.content.msg);
+						}
+						break;
+					default:
+						console.log(`Default Message`,msg)
+						break;
+				}
+			});
+		}
+	}
+
 
 	sendMsg = (c) => {
 		console.log(`Sending: ${JSON.stringify(c)}`);
@@ -281,6 +281,8 @@ class App extends Component {
 			this.setState((prevState) => {
 				return { ...prevState, ...state };
 			});
+
+			console.log(this.state)
 		});
 
 	 }

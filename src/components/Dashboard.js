@@ -17,6 +17,7 @@ export default class Dashboard extends React.Component {
 	positions = (positions) => {
 
 		return positions.map(pos => {
+			console.log(pos)
 			return (
 				<tr>
 					<td>
