@@ -154,12 +154,12 @@ export default class StockCard
 				<tr className="bottom">
 					<tr className="info">
 						{this.exchange()}
-						<sendTo>
-							<sendTo1 onClick={() => this.props.commands.sendTo(1)}>-</sendTo1>
-							<sendTo2 onClick={() => this.props.commands.sendTo(2)}>-</sendTo2>
-							<sendTo3 onClick={() => this.props.commands.sendTo(3)}>-</sendTo3>
-							<sendTo4 onClick={() => this.props.commands.sendTo(4)}>-</sendTo4>
-						</sendTo>
+						<sendto>
+							<sendto1 onClick={() => this.props.commands.sendto(1)}>-</sendto1>
+							<sendto2 onClick={() => this.props.commands.sendto(2)}>-</sendto2>
+							<sendto3 onClick={() => this.props.commands.sendto(3)}>-</sendto3>
+							<sendto4 onClick={() => this.props.commands.sendto(4)}>-</sendto4>
+						</sendto>
 					</tr>
 				</tr>
 			</tr>

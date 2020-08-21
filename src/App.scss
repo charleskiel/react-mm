@@ -15,6 +15,27 @@ code {
 }
 
 
+
+.commandKeyStyle{
+  background-color: rgb(34, 50, 75);
+  font-size: 10px;
+  float: right;
+  width: 200px;
+  padding: .0em;
+}
+.commandKeyStyleOK{
+  @extend .commandKeyStyle;
+	transition: background-color 1s;
+	background-color: "green";
+}
+.commandKeyStyleERROR{
+  @extend .commandKeyStyle;
+	transition: background-color 1s;
+	background-color: "red";
+}
+
+
+
 .watchlist{
   width: 300px;						
   padding: 12;
@@ -27,7 +48,7 @@ code {
   padding: 2em;
 }
 
-sendTo{
+sendto{
   display: inline-block;
   margin: 1px;
   margin-right: 3px;
@@ -36,7 +57,7 @@ sendTo{
   float: right;
 }
 
-sendTo1{@extend sendTo; background-color: red;}
-sendTo2{@extend sendTo; background-color: yellow;}
-sendTo3{@extend sendTo; background-color: blue;}
-sendTo4{@extend sendTo; background-color: green;}
+sendto1{@extend sendto; background-color: red;}
+sendto2{@extend sendto; background-color: yellow;}
+sendto3{@extend sendto; background-color: blue;}
+sendto4{@extend sendto; background-color: green;}

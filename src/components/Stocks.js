@@ -15,18 +15,18 @@ export default class Stock extends React.Component {
 	listStocks = () => {
 
 		let list = _.values(this.props.watchlists).filter(list => {
-			if (list.watchlistId === this.props.selectedWatchlist) {
-				return list
+			if (list.id === this.props.selectedWatchlist) {
+				return list 
 			}
 		})
 
 		if (list[0]){
 			return (
-				list[0].watchlistItems.map(stock => {
+				list[0].items.map(stock => {
 					return <StockCard 
 						setSelectedStock={this.setSelectedStock} 
-						key={stock.instrument.symbol}
-						id={stock.instrument.symbol} stock={this.props[stock.instrument.symbol]}
+						key={stock}
+						id={stock} stock={this.props[stock]}
 					/>
 				})
 			)
@@ -82,47 +82,22 @@ export default class Stock extends React.Component {
 				<Menu mode="inline" defaultSelectedKeys={["1"]} defaultOpenKeys={["watchlists"]} style={{ height: "100%", borderRight: 0 }}>
 					<SubMenu
 						key="watchlists"
-						title={
-							<span>
-								<UserOutlined />
-								Watchlists
-							</span>
-						}
+						title={<span><UserOutlined/> Watchlists</span>}
 					>
 						{_.values(this.props.watchlists).map((list) => (
-							<Menu.Item key={list.watchlistId} onClick={() => this.props.setSelectedWatchlist(list.watchlistId)}>
+							<Menu.Item key={list.id} onClick={() => this.props.setSelectedWatchlist(list.id)}>
 								{list.name}
 							</Menu.Item>
 						))}
 					</SubMenu>
 					<SubMenu
-						key="sub2"
-						title={
-							<span>
-								<LaptopOutlined />
-								subnav 2
-							</span>
-						}
+						key="functions"
+						title={<span><LaptopOutlined />subnav 2</span>}
 					>
 						<Menu.Item key="5">Activities</Menu.Item>
 						<Menu.Item key="6">option6</Menu.Item>
 						<Menu.Item key="7">option7</Menu.Item>
 						<Menu.Item key="8">option8</Menu.Item>
-					</SubMenu>
-					)
-					<SubMenu
-						key="sub3"
-						title={
-							<span>
-								<NotificationOutlined />
-								subnav 3
-							</span>
-						}
-					>
-						<Menu.Item key="9">option9</Menu.Item>
-						<Menu.Item key="10">option10</Menu.Item>
-						<Menu.Item key="11">option11</Menu.Item>
-						<Menu.Item key="12">option12</Menu.Item>
 					</SubMenu>
 				</Menu>
 			</Sider>
