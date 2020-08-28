@@ -94,10 +94,7 @@ export default class Stock extends React.Component {
 						key="functions"
 						title={<span><LaptopOutlined />subnav 2</span>}
 					>
-						<Menu.Item key="5">Activities</Menu.Item>
-						<Menu.Item key="6">option6</Menu.Item>
-						<Menu.Item key="7">option7</Menu.Item>
-						<Menu.Item key="8">option8</Menu.Item>
+						<Menu.Item key="5">Stock Detail</Menu.Item>
 					</SubMenu>
 				</Menu>
 			</Sider>

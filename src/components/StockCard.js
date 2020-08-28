@@ -45,7 +45,6 @@ export default class StockCard
 	}
 	
 	exchange = () => {
-		//console.log(this.props.stock["16"]);
 		switch (this.props.stock["16"]) {
 			
 			case "n" :
@@ -114,8 +113,6 @@ export default class StockCard
 	}
 
 	render() {
-		//console.log(this.props.key)
-		//if(this.props.id === "TSLA") console.log(this.props)
 		//if(!this.props.id) console.log(this.props)
 		//console.log(this.props)
 		return (

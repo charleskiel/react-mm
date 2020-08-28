@@ -9,6 +9,7 @@ import Stocks from "./components/Stocks";
 import Dashboard from "./components/dashboard/Dashboard";
 import "./App.less";
 
+
 //import { changeConfirmLocale } from "antd/lib/modal/locale";
 //import {	MenuUnfoldOutlined,	MenuFoldOutlined,	VideoCameraOutlined,	UploadOutlined,} from "@ant-design/icons";
 //import { responsiveMap } from "antd/lib/_util/responsiveObserve";
@@ -191,6 +192,8 @@ class App extends Component {
 						switch (m.command){
 							case "SETTING":
 								this.setState((prevState) => {return {settings : {...prevState.settings, ...m.setting} }})				
+								break;
+							default:
 								break;
 						}
 						console.log(this.state.settings);

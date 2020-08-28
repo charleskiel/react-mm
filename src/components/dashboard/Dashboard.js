@@ -9,6 +9,8 @@ import "./Dashboard.scss";
 import _ from "lodash";
 import { UserOutlined, LaptopOutlined, NotificationOutlined } from "@ant-design/icons";
 import moment from "moment";
+
+
 const { SubMenu } = Menu;
 
 const { TabPane } = Tabs;
@@ -25,12 +27,21 @@ export default class Dashboard extends React.Component {
 	}
   
 	render() {
+
 		//console.log(this.props);
 		return (
 			<Layout>
 				<Sider width={200} className="site-layout-background">
 					<Menu mode="inline" defaultSelectedKeys={["1"]} defaultOpenKeys={["watchlists"]} style={{ height: "100%", borderRight: 0 }}>
-						<SubMenu key="watchlists" title={<span><UserOutlined />Menu 1</span>} >
+						<SubMenu
+							key="watchlists"
+							title={
+								<span>
+									<UserOutlined />
+									Menu 1
+								</span>
+							}
+						>
 							<Menu.Item key={"home"} onClick={() => this.setShowPage("home")}>
 								Main Dashboard
 							</Menu.Item>
@@ -69,11 +80,12 @@ export default class Dashboard extends React.Component {
 						</SubMenu>
 					</Menu>
 				</Sider>
-				{(this.state.showpage === "account") && <Account {...this.props}/>}
-				{(this.state.showpage === "home" && this.props.actives) && <Home {...this.props}/>}
-				
-				
+				<Layout className="mainLayout">
+
+					{this.state.showpage === "account" && <Account {...this.props} />}
+					{this.state.showpage === "home" && this.props.actives && <Home {...this.props} />}
+				</Layout>
 			</Layout>
-		)
+		);
 	}
 }

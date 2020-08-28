@@ -5,10 +5,12 @@ import "./Marquee.scss";
 import "./Header.scss";
 import {Input, Layout, Menu, Breadcrumb,Row, Col, Card } from 'antd';
 
-import { KeyOutlined } from "@ant-design/icons";
+import { KeyOutlined ,SettingOutlined} from "@ant-design/icons";
 
 const { Header, Content, Sider } = Layout;
 
+
+const { SubMenu, ItemGroup } = Menu;
 
 //const { Header, Content, Sider } = Layout;
 
@@ -29,6 +31,14 @@ export default class AppHeader extends React.Component {
 					</Menu.Item>
 					<Menu.Item key="2" onClick={() => this.props.switchView("stocks")}>
 						Stocks
+							{/* <Menu.ItemGroup title="Item 1">
+								<Menu.Item key="setting:1">Option 1</Menu.Item>
+								<Menu.Item key="setting:2">Option 2</Menu.Item>
+							</Menu.ItemGroup>
+							<Menu.ItemGroup title="Item 2">
+								<Menu.Item key="setting:3">Option 3</Menu.Item>
+								<Menu.Item key="setting:4">Option 4</Menu.Item>
+							</Menu.ItemGroup> */}
 					</Menu.Item>
 					<Menu.Item key="3" onClick={() => this.props.switchView("crypto")}>
 						Crypto
@@ -46,7 +56,7 @@ export default class AppHeader extends React.Component {
 					prefix={<KeyOutlined />}
 					placeholder="Enter access key"
 					onChange={(evt) => this.props.setCommandkey(evt.target.value)}
-					className={this.props.commandKeyStyle}
+					className={this.props.settings.commandKeyStyle}
 				></Input>
 
 				<tr className="marquee">
