@@ -33,31 +33,32 @@ export default class Stock extends React.Component {
 		}
 	}
 
-    state = {
-        data: [],
-    };
-    options = [
-	{
-	  value: 'zhejiang',
-	  label: 'Zhejiang',
-	  children: [
-	    {
-		 value: 'hangzhou',
-		 label: 'Hangzhou',
-	    },
-	  ],
-	},
-	{
-	  value: 'jiangsu',
-	  label: 'Jiangsu',
-	  children: [
-	    {
-		 value: 'nanjing',
-		 label: 'Nanjing',
-	    },
-	  ],
-	},
-   ];
+	state = {
+		data: [],
+	};
+	
+	options = [
+		{
+			value: 'zhejiang',
+			label: 'Zhejiang',
+			children: [
+				{
+					value: 'hangzhou',
+					label: 'Hangzhou',
+				},
+			],
+		},
+		{
+			value: 'jiangsu',
+			label: 'Jiangsu',
+			children: [
+				{
+					value: 'nanjing',
+					label: 'Nanjing',
+				},
+			],
+		},
+	];
 
 	// tick = (data) =>{
 	// 	console.log(`${this.props.key}`)

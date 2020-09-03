@@ -16,7 +16,10 @@ const { SubMenu, ItemGroup } = Menu;
 
 
 export default class AppHeader extends React.Component {
-	log = (e) => { console.log(e)}
+
+	componentWillMount = () => {
+		this.props.subscribe()
+	}
 
 	render() {
 		//console.log(this.props)

@@ -91,7 +91,7 @@ class App extends Component {
 				this.getStatus();
 				setInterval(this.getStatus, 2000);
 				//setInterval(this.getState, 2000)
-				setInterval(this.updateStateFromTimer, 500);
+				setInterval(this.updateState, 500);
 
 				this.ws = new WebSocket("wss://charleskiel.dev:7999");
 
@@ -104,7 +104,7 @@ class App extends Component {
 							{
 								service: "ADMIN",
 								command: "LOGIN",
-								requestId: 0,
+								requestId: this.requestId(),
 								username: "demo",
 								password: "password",
 							},
@@ -206,11 +206,29 @@ class App extends Component {
 		}
 	};
 
+	
+
 	sendMsg = (c) => {
 		console.log(`Sending: ${JSON.stringify(c)}`);
 		this.ws.send(JSON.stringify(c));
 	};
 	initStream = () => {};
+
+	functions = {
+		subscribe : (keys) => {
+			sendMsg(JSON.stringify({
+					requests: [
+						{
+							service: "STREAM",
+							command: "SUBSCRIBE",
+							requestId: this.requestId(),
+							content: [...keys].toString()
+						},
+					],
+			}))
+		}
+	}
+
 
 	toHHMMSS = (time) => {
 		var sec_num = parseInt(time, 10); // don't forget the second param
@@ -235,7 +253,7 @@ class App extends Component {
 
 	tickbuffer = {};
 
-	updateStateFromTimer = () => {
+	updateState = () => {
 		let excTime = Date.now();
 		this.setState((prevState) => {
 			return { ...prevState, ...this.tickbuffer };
@@ -322,52 +340,16 @@ class App extends Component {
 	switchView = (page) => {
 		this.setState({ showpage: page });
 	};
-	activites = (a) => {
-		console.log(a);
-		if (a.groups)
-			return a.groups.map((_stock) => {
-				console.log(this.state[_stock.symbol]);
-
-				return (
-					<Card
-						className="stockCard"
-						size="small"
-						title={!_stock.name && this.state[_stock.symbol][25].replace(" - Common Stock", "") + " : $" + this.state[_stock.symbol][3]}
-						extra={
-							<a onClick={() => this.state[_stock.symbol].setSelectedStock(this.state[_stock.symbol].id)} href="#">
-								Chart
-							</a>
-						}
-					>
-						{this.state[_stock.symbol][29]}
-						<small>
-							<Row>
-								<Col span={12}>Bid: {this.state[_stock.symbol]["1"]}</Col>
-								<Col span={12}>Ask: {this.state[_stock.symbol]["2"]}</Col>
-							</Row>
-							<Row>
-								<Col span={12}>Vol: {this.state[_stock.symbol]["8"]}</Col>
-								<Col span={12}>{this.state[_stock.symbol]["4"]}</Col>
-							</Row>
-							<Row>
-								<Col span={12}>Vol: {_stock.volume}</Col>
-								<Col span={12}>{this.state[_stock.symbol]["4"]}</Col>
-							</Row>
-						</small>
-					</Card>
-				);
-			});
-	};
 
 	render() {
 		return (
 			<Layout>
-				<Header {...this.state} switchView={this.switchView} setCommandkey={this.setCommandkey} />
+				<Header {...this.functions} {...this.state} switchView={this.switchView} setCommandkey={this.setCommandkey} />
 
 				{this.state.showpage === "stocks" && (
-					<Stocks {...this.state} setSelectedWatchlist={this.setSelectedWatchlist} setSelectedStock={this.setSelectedStock} setSelectedWatchlist={this.setSelectedWatchlist}></Stocks>
+					<Stocks {...this.functions} {...this.state} setSelectedWatchlist={this.setSelectedWatchlist} setSelectedStock={this.setSelectedStock} setSelectedWatchlist={this.setSelectedWatchlist}></Stocks>
 				)}
-				{this.state.showpage === "dashboard" && <Dashboard {...this.state} />}
+				{his.state.showpage === "dashboard" && <Dashboard {...this.functions} {...this.state} />}
 				{this.state.showpage === "crypto" && <div>[Coinbase API page coming soon]</div>}
 				{this.state.showpage === "admin" && <div>[working on this]</div>}
 				{this.state.showpage === "about" && <div>[Check back in a few hours]</div>}
