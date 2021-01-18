@@ -14,6 +14,30 @@ export default class Account extends React.Component {
 	state = {
 		data: [],
 	};
+
+	componentWillMount(){
+		this.props.functions.subscribe("ACCOUNT")
+		this.getdata()
+		setInterval(this.getdata, 2000)
+
+	}
+
+	getdata = () => {
+		fetch("http://192.168.1.102:8000/accountStatus", {
+			method: "GET",
+			//mode: 'cors',
+			headers: {
+				"Content-Type": "application/json",
+			},
+		})
+		.then((response) => response.json())
+		.then(response => {
+			this.setState({data : response})
+			this.forceUpdate()
+		})
+	}
+
+
 	positions = (positions) => {
 
 		return positions.map(pos => {
@@ -32,7 +56,7 @@ export default class Account extends React.Component {
 					<td className="plPc">{currency(pos.currentDayProfitLossPercentage * 100).value}%</td>
 					<td className="pl">{currency(pos.currentDayProfitLoss).format()}</td>
 					{/* <td className="mkvalue" >{currency(pos.marketValue).format()}</td> */}
-					<td className="mkvalue" ><PriceIndicator price={pos.marketValue} masking={this.props.masking} /></td>
+					<td className="mkvalue" ><PriceIndicator price={pos.marketValue} masking={this.props.state.masking} /></td>
 				</tr>
 			);
 		})
@@ -46,10 +70,10 @@ export default class Account extends React.Component {
 				<h1>Account Home Page</h1>
 				<span style={{width : "50%"}}>
 					<h1>Account Status</h1>
-					<div><strong>Current Balance</strong> : <PriceIndicator price={this.props.app.account[0].securitiesAccount.currentBalances.liquidationValue}  commandKeyStatus={this.props.settings.commandKeyStatus}/></div>
-					{/* <div><strong>Current Balance</strong> : <PriceIndicator price={this.props.app.account[0].securitiesAccount.currentBalances.liquidationValue}  commandKeyStatus={this.props.settings.commandKeyStatus}/>({this.props.app.account[0].securitiesAccount.currentBalances.liquidationValue /this.props.app.account[0].securitiesAccount.initialBalances.liquidationValue })  </div> */}
-					<div><strong>Initial Balance</strong> : <PriceIndicator price={this.props.app.account[0].securitiesAccount.initialBalances.liquidationValue} commandKeyStatus={this.props.settings.commandKeyStatus}/></div>
-					<div><strong>Stock Buying Power</strong> : <PriceIndicator price={this.props.app.account[0].securitiesAccount.projectedBalances.stockBuyingPower} commandKeyStatus={this.props.settings.commandKeyStatus}/></div>
+					<div><strong>Current Balance</strong> : <PriceIndicator price={this.state.app.account[0].securitiesAccount.currentBalances.liquidationValue}  commandKeyStatus={this.state.settings.commandKeyStatus}/></div>
+					{/* <div><strong>Current Balance</strong> : <PriceIndicator price={this.state.app.account[0].securitiesAccount.currentBalances.liquidationValue}  commandKeyStatus={this.state.settings.commandKeyStatus}/>({this.state.app.account[0].securitiesAccount.currentBalances.liquidationValue /this.state.app.account[0].securitiesAccount.initialBalances.liquidationValue })  </div> */}
+					<div><strong>Initial Balance</strong> : <PriceIndicator price={this.state.app.account[0].securitiesAccount.initialBalances.liquidationValue} commandKeyStatus={this.state.settings.commandKeyStatus}/></div>
+					<div><strong>Stock Buying Power</strong> : <PriceIndicator price={this.state.app.account[0].securitiesAccount.projectedBalances.stockBuyingPower} commandKeyStatus={this.state.settings.commandKeyStatus}/></div>
 					<table className="accountTable">
 						<tr>
 							<th>Side</th>
@@ -61,7 +85,7 @@ export default class Account extends React.Component {
 							<th>Market Value</th>
 						</tr>
 
-						{this.positions(this.props.app.account[0].securitiesAccount.positions)}
+						{this.positions(this.state.app.account[0].securitiesAccount.positions)}
 					</table>
 				</span>
 			</Layout>

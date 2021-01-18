@@ -1,7 +1,9 @@
 import React, { Component } from "react";
+import EventEmitter from "eventemitter3";
 //import moment from "moment"
 import "./App.scss";
 import Header from "./components/Header"
+import Home from "./components/dashboard/Home";
 import _ from "lodash"
 import { Table, Layout, Menu, Breadcrumb,Row, Col, Card } from 'antd';
 import { UserOutlined, LaptopOutlined, NotificationOutlined } from '@ant-design/icons';
@@ -9,27 +11,31 @@ import Stocks from "./components/Stocks";
 import Dashboard from "./components/dashboard/Dashboard";
 import "./App.less";
 
+import Data from "./GetData"
+import { data } from "jquery";
+
+
 
 //import { changeConfirmLocale } from "antd/lib/modal/locale";
 //import {	MenuUnfoldOutlined,	MenuFoldOutlined,	VideoCameraOutlined,	UploadOutlined,} from "@ant-design/icons";
 //import { responsiveMap } from "antd/lib/_util/responsiveObserve";
 
 class App extends Component {
-	sessionId = "";
+	ws = WebSocket
+	rid = 0;
+	requestid = () => { this.rid += 1; return this.rid; }
+
+	sessionid = 0;
 	nowplayingId = 0;
 	packetcount = 0;
 	casparpacketcount = 0;
 	broadcastpacketcount = 0;
 	controllerpacketcount = 0;
 
-	settings = {
-		account: {},
-		principals: {},
-		refresh_token: {},
-		access_token: {},
-		auth: {},
-		serverStatus: {},
+	event = new EventEmitter()
 
+	settings = {
+		serverStatus: {},
 		packetcount: 0,
 	};
 
@@ -44,94 +50,80 @@ class App extends Component {
 		selectedWatchlist: "stocks",
 		systemTime: 0,
 		selectedStock: "",
+		subStocks: {},
+		tickerStocks: {},
 		status: {},
 		pps: 0,
-		heartbeat: 0,
-		ACTIVES_NASDAQ: {},
-		ACTIVES_NYSE: {},
-		ACTIVES_OPTIONS: {},
-		ACTIVES_OTCBB: {},
-		showpage: "dashboard",
+		actives: {
+			ACTIVES_NASDAQ: {},
+			ACTIVES_NYSE: {},
+			ACTIVES_OPTIONS: {},
+			ACTIVES_OTCBB: {}
+		},
+		showpage: "home",
 		masking: true,
 	};
 
-	ws = {};
-	rid = 0;
-	requestId = () => {
-		return (this.rid = +1);
-	};
 
-	ws = new Object();
-	jsonToQueryString = (json) => {
-		return Object.keys(json)
-			.map(function (key) {
-				return encodeURIComponent(key) + "=" + encodeURIComponent(json[key]);
-			})
-			.join("&");
-	};
-
-	componentDidMount() {
-		fetch("https://charleskiel.dev:8000/state", {
-			method: "GET",
-			//mode: 'cors',
-			headers: {
-				"Content-Type": "application/json",
-			},
-		})
-			.then((response) => response.json())
-			.then((response) => {
-				let test = [];
-				test["one"] = { key: 1, 1: "wegwe", 2: "22ewsfs" };
-				console.log(response.stocks);
-				console.log(test);
-				this.setState((prevState) => {
-					return { ...prevState, ...response.stocks };
-				});
-				//console.log(this.state)
-				this.getStatus();
-				setInterval(this.getStatus, 2000);
-				//setInterval(this.getState, 2000)
-				setInterval(this.updateState, 500);
-
-				this.ws = new WebSocket("wss://charleskiel.dev:7999");
-
-				this.ws.onopen = (event) => {
-					//console.log(this.settings.principals.accounts);
-					console.log("Connected to Server ", event);
-
-					let login = JSON.stringify({
-						requests: [
-							{
-								service: "ADMIN",
-								command: "LOGIN",
-								requestId: this.requestId(),
-								username: "demo",
-								password: "password",
-							},
-						],
-					});
-					this.getWatchLists();
-					this.ws.onmessage = (event) => {
-						//console.log(event)
-						this.msgRec(JSON.parse(event.data));
-					};
-					this.ws.send(login);
-
-					this.ws.onerror = (event) => {
-						console.log("Error ", event);
-					};
-					this.ws.onclose = (event) => {
-						console.log("Disconnected ", event);
-					};
-				};
-			})
-			.catch((error) => {
-				console.error("Error:", error);
-			});
+	componentWillMount() {
+		// this.event.on("connected",() =>{
+		// 	console.log("Connected")
+		// })
 	}
 
+	loadSocket = () => {
+		this.ws = new WebSocket("ws://192.168.1.102:7999");
+		this.ws.onopen = (event) => {
+			console.log("Connected to Server ", event.target.url);
+			//this.functions.getWatchLists();
+			let login = JSON.stringify({
+				service: "ADMIN",
+				command: "LOGIN",
+				requestid: this.requestid(),
+				username: "demo",
+				password: "password",
+			});
+
+			this.ws.send(login);
+			this.functions.subscribe("STATS")
+			this.ws.onmessage = (event) => {this.msgRec(JSON.parse(event.data))};
+			this.ws.onclose = (event) => {setTimeout(this.loadSocket, 2000);console.log("Disconnected ", event)};
+		}
+		this.ws.onerror = (event) => { console.log("Error ", event);setTimeout(this.loadSocket, 2000)};
+	}
+	componentDidMount() {
+		this.loadSocket()
+		setInterval(this.sendMsgBuffer, 200);
+		setInterval(this.updateRxBuffer, 200);
+		setInterval(this.getStatus, 2000);
+
+		// fetch("http://192.168.1.102:8000/state", {
+		// 	method: "GET",
+		// 	//mode: 'cors',
+		// 	headers: {
+		// 		"Content-Type": "application/json",
+		// 	},
+		// })
+		// .then((response) => response.json())
+		// 	.then((response) => {
+		// 	console.log(response)
+		// 	this.setState((prevState) => {
+		// 		return { ...prevState, ...response };
+		// 	});
+		// 	//console.log(this.state)
+		// 	this.getStatus();
+
+		// })
+		// .catch((error) => {
+		// 	console.error("Error:", error);
+		// });
+	}
+	
+	tickcount = 0;
+	tickbuffer = {};
+
 	msgRec = (msg) => {
-		//console.log(msg)
+		console.log(msg)
 		if (msg.notify) {
 			this.setState({ heartbeat: msg.notify[0].heartbeat });
 		}
@@ -153,26 +145,24 @@ class App extends Component {
 				case "QUOTE":
 					//console.log(m)
 					msg.content.forEach((eq) => {
-						this.tickbuffer[eq.key] = { ...this.state[eq.key], ...this.tickbuffer[eq.key], ...eq };
+						this.tickbuffer[eq.key] = { ...this.tickbuffer[eq.key], ...eq };
 						this.tickcount += 1;
 					});
 
 					break;
-				case "ACTIVES_NASDAQ":
-					//console.log(m)
-					break;
-				case "ACTIVES_NYSE":
-					//console.log(m)
-					break;
-				case "ACTIVES_OPTIONS":
-					//console.log(m)
-					break;
-				case "ACTIVES_OTCBB":
-					//console.log(m)
-					break;
 				case "TIMESALE_FUTURES":
 					break;
+				case "ACTIVES_NASDAQ":
+				case "ACTIVES_NYSE":
+				case "ACTIVES_OPTIONS":
+				case "ACTIVES_OTCBB":
+					msg.content.forEach((eq) => {this.activesBuffer[eq.key] = { ...this.activesBuffer[eq.key]}});
+					break;
+				case "ADMIN":
+					switch(msg.type){}
+					break;
 				default:
+					break;
 				//console.log(m);
 			}
 		}
@@ -180,18 +170,28 @@ class App extends Component {
 		if (msg.response) {
 			msg.response.forEach((m) => {
 				console.log(m)
-				// if (msg.content.code === 0) {
-				// 	console.log(`Login Sucuess!`, msg.content.code, msg.content.msg);
-				// 	this.initStream();
-				// } else {
-				// 	console.log(`LOGIN FAILED!!`, msg.content.code, msg.content.msg);
-				// }
 				switch (m.service) {
-					
 					case "ADMIN":
 						switch (m.command){
 							case "SETTING":
 								this.setState((prevState) => {return {settings : {...prevState.settings, ...m.setting} }})				
+								break;
+							case "LOGIN":
+								if (m.content === "OK") { console.log(`Login Sucuess!`, m.sessionid); this.sessionid = m.sessionid;}
+								else { console.log(`LOGIN FAILED!!`, msg.content.code, msg.content.msg); }
+								break;
+							default:
+								break;
+						}
+						console.log(this.state.settings);
+						break;
+					case "SERVICE":
+						console.log(msg);
+						switch (m.command){
+							case "SETTING":
+								this.setState((prevState) => {return {settings : {...prevState.settings, ...m.setting} }})				
+								break;
+							case "SUB":
 								break;
 							default:
 								break;
@@ -206,26 +206,16 @@ class App extends Component {
 		}
 	};
 
-	
-
+	msgTxBuffer = []
 	sendMsg = (c) => {
-		console.log(`Sending: ${JSON.stringify(c)}`);
-		this.ws.send(JSON.stringify(c));
+		this.msgTxBuffer.push(c)
 	};
-	initStream = () => {};
-
-	functions = {
-		subscribe : (keys) => {
-			sendMsg(JSON.stringify({
-					requests: [
-						{
-							service: "STREAM",
-							command: "SUBSCRIBE",
-							requestId: this.requestId(),
-							content: [...keys].toString()
-						},
-					],
-			}))
+	
+	sendMsgBuffer = () => {
+		// console.log(this.msgTxBuffer)
+		// console.log(this.ws.readyState === 1)
+		if (this.ws.readyState === 1 && this.msgTxBuffer.length > 0 && this.sessionid > 0) {
+			this.ws.send(JSON.stringify(this.msgTxBuffer.shift()));
 		}
 	}
 
@@ -235,121 +225,54 @@ class App extends Component {
 		var hours = Math.floor(sec_num / 3600);
 		var minutes = Math.floor((sec_num - hours * 3600) / 60);
 		var seconds = sec_num - hours * 3600 - minutes * 60;
-
-		if (hours < 10) {
-			hours = "0" + hours;
-		}
-		if (minutes < 10) {
-			minutes = "0" + minutes;
-		}
-		if (seconds < 10) {
-			seconds = "0" + seconds;
-		}
+		if (hours < 10) {hours = "0" + hours;}
+		if (minutes < 10) {minutes = "0" + minutes;}
+		if (seconds < 10) {seconds = "0" + seconds;}
 		return hours + ":" + minutes + ":" + seconds;
 	};
 
 	ticktimestamp = Date.now();
-	tickcount = 0;
-
+	activesBuffer = {}
 	tickbuffer = {};
+	
+	msgRxBuffer = []
 
-	updateState = () => {
+	updateRxBuffer = () => {
 		let excTime = Date.now();
-		this.setState((prevState) => {
-			return { ...prevState, ...this.tickbuffer };
-		});
-		//console.log(Date.now() - excTime,"ms");
+		let buffer = {subStocks: this.tickbuffer,actives : this.activesBuffer}
 		this.tickbuffer = {};
-		//console.log(this.state["AMD"])
+		this.activesBuffer = {}
+
+		this.setState((prevState) => {return { ...prevState, ...buffer }});
+		//this.setState((prevState) => {return { ...prevState, ...this.tickbuffer }});
+		//console.log(Date.now() - excTime,"ms");
 	};
 
-	setSelectedStock = (stock) => {
-		console.log(`Setting Chart to ${stock}`);
-		this.setState({ selectedStock: stock });
-	};
 
-	setSelectedWatchlist = (list) => {
-		console.log(`Setting Watchlist to ${list}`);
-		this.setState({ selectedWatchlist: list });
-		console.log(this.state);
-	};
-
-	setCommandkey = (key) => {
-		console.log(key);
-		this.setState((prevState) => { return {settings : {...prevState.settings,...{commandKey: key} }}} );
-		
-		let m = {
-				requests: [
-					{
-						service: "ADMIN",
-						command: "SETCOMMANDKEY",
-						commandKey: key,
-						requestId: this.requestId(),
-					},
-				],
+	functions = {
+		setSelectedWatchlist : (list) => { console.log(`Setting Watchlist to ${list}`); this.setState({ selectedWatchlist: list }); console.log(this.state)},
+		setSelectedStock: (stock) => { console.log(`Setting Chart to ${stock}`); this.setState({ selectedStock: stock }) },
+		subscribe: (command, keys = [], dataTypes = []) => { this.sendMsg({"service": "SUB", "command" : command, "keys" :keys, "dataTypes": dataTypes })}, 
+		getWatchLists : () => { this.setState({ watchlists: Data.getWatchLists() })},
+		switchView : (page) => {this.setState({ showpage: page })},
+		setCommandkey : (key) => {
+			console.log(key);
+			this.setState((prevState) => { return {settings : {...prevState.settings,...{commandKey: key} }}})
+			this.ws.send(JSON.stringify({requests: [{service: "ADMIN",command: "SETCOMMANDKEY",commandKey: key,requestid: this.requestid()}]}))
 		}
+	}
 
-		console.log(m);
-		this.ws.send(JSON.stringify(m))
-		console.log(this.state);
-	};
+	events = {
 
-	getWatchLists = () => {
-		return new Promise((sucsess, fail) => {
-			fetch("https://charleskiel.dev:8000/getWatchlists", {
-				method: "GET",
-				mode: "cors",
-				headers: { "Content-Type": "application/json" },
-			})
-				.then((response) => response.json())
-				.then((response) => {
-					console.log(response);
-					this.setState({ watchlists: response });
-					this.setSelectedWatchlist("1364950292");
-				});
-		});
-	};
+	}
 
-	getStatus = () => {
-		fetch(`https://charleskiel.dev:8000/status`, {
-			method: "GET",
-			mode: "cors",
-			headers: { "Content-Type": "application/json" },
-		})
-			.then((response) => response.json())
-			.then((status) => {
-				this.setState((prevState) => {
-					return { ...prevState, ...status };
-				});
-			});
-	};
-	getState = () => {
-		fetch(`https://charleskiel.dev:8000/state`, {
-			method: "GET",
-			mode: "cors",
-			headers: { "Content-Type": "application/json" },
-		})
-			.then((response) => response.json())
-			.then((state) => {
-				this.setState((prevState) => {
-					return { ...prevState, ...state };
-				});
-			});
-	};
-
-	switchView = (page) => {
-		this.setState({ showpage: page });
-	};
 
 	render() {
 		return (
 			<Layout>
-				<Header {...this.functions} {...this.state} switchView={this.switchView} setCommandkey={this.setCommandkey} />
-
-				{this.state.showpage === "stocks" && (
-					<Stocks {...this.functions} {...this.state} setSelectedWatchlist={this.setSelectedWatchlist} setSelectedStock={this.setSelectedStock} setSelectedWatchlist={this.setSelectedWatchlist}></Stocks>
-				)}
-				{his.state.showpage === "dashboard" && <Dashboard {...this.functions} {...this.state} />}
+				<Header {...this.state}/>
+				{this.state.showpage === "home" && <Home functions={this.functions} state={this.state}/>}
+				{this.state.showpage === "stocks" && <Stocks functions={this.functions} state={this.state}/>}
 				{this.state.showpage === "crypto" && <div>[Coinbase API page coming soon]</div>}
 				{this.state.showpage === "admin" && <div>[working on this]</div>}
 				{this.state.showpage === "about" && <div>[Check back in a few hours]</div>}

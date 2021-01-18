@@ -18,7 +18,7 @@ const { SubMenu, ItemGroup } = Menu;
 export default class AppHeader extends React.Component {
 
 	componentWillMount = () => {
-		this.props.subscribe()
+		///this.props.functions.subscribe("SPY","QQQ","GLD","SLV","AMD","NVDA","MU","TAN",)
 	}
 
 	render() {
@@ -29,10 +29,10 @@ export default class AppHeader extends React.Component {
 			<Header className="header">
 				<tr className="logo" />
 				<Menu theme="dark" mode="horizontal" defaultSelectedKeys={["1"]} className="headerMenu">
-					<Menu.Item key="1" onClick={() => this.props.switchView("dashboard")}>
+					<Menu.Item key="1" onClick={() => this.props.functions.switchView("dashboard")}>
 						Dashboard
 					</Menu.Item>
-					<Menu.Item key="2" onClick={() => this.props.switchView("stocks")}>
+					<Menu.Item key="2" onClick={() => this.props.functions.switchView("stocks")}>
 						Stocks
 							{/* <Menu.ItemGroup title="Item 1">
 								<Menu.Item key="setting:1">Option 1</Menu.Item>
@@ -43,13 +43,13 @@ export default class AppHeader extends React.Component {
 								<Menu.Item key="setting:4">Option 4</Menu.Item>
 							</Menu.ItemGroup> */}
 					</Menu.Item>
-					<Menu.Item key="3" onClick={() => this.props.switchView("crypto")}>
+					<Menu.Item key="3" onClick={() => this.props.functions.switchView("crypto")}>
 						Crypto
 					</Menu.Item>
-					<Menu.Item key="4" onClick={() => this.props.switchView("admin")}>
+					<Menu.Item key="4" onClick={() => this.props.functions.switchView("admin")}>
 						Admin
 					</Menu.Item>
-					<Menu.Item key="5" onClick={() => this.props.switchView("about")}>
+					<Menu.Item key="5" onClick={() => this.props.functions.switchView("about")}>
 						About
 					</Menu.Item>
 				</Menu>
@@ -58,14 +58,14 @@ export default class AppHeader extends React.Component {
 					ref="commandKey"
 					prefix={<KeyOutlined />}
 					placeholder="Enter access key"
-					onChange={(evt) => this.props.setCommandkey(evt.target.value)}
+					onChange={(evt) => this.props.functions.setCommandkey(evt.target.value)}
 					className={this.props.settings.commandKeyStyle}
 				></Input>
 
 				<tr className="marquee">
 					<tr className="marquee__content">
 						<ul className="list-inline">
-							{this.props.watchlists.length > 0 &&
+							{this.props.watchlists > 0 &&
 								this.props.watchlists[7].items.map((stock) => {
 									return (
 										<li className="marqueeItem">
