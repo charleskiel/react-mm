@@ -1,91 +1,131 @@
+//import "./Dashboard.scss";
 import * as React from "react";
-import {Badge, Tabs, Layout, Menu} from "antd";
+import {Badge, Tabs, Layout} from "antd";
 import StockCard from "../StockCard";
-import Account from "./Account";
-import Home from "./Home";
 import currency from "currency.js";
 import PriceIndicator from "../PriceIndicator";
-import "./Dashboard.scss";
 import _ from "lodash";
 import { UserOutlined, LaptopOutlined, NotificationOutlined } from "@ant-design/icons";
 import moment from "moment";
-
-
-const { SubMenu } = Menu;
+import "../../../node_modules/react-vis/dist/style.css";
+import { XYPlot, LineSeries } from "react-vis";
 
 const { TabPane } = Tabs;
-const { Content, Sider } = Layout;
+const { Content} = Layout;
 //{currency().format()}
 export default class Dashboard extends React.Component {
 	state = {
-		showpage: "home",
+		data : []
 	};
-	
-	setShowPage = (page) => {
-		console.log(`Setting Dashboard to ${page}`)
-		this.setState({showpage: page})
-	}
-  
-	render() {
 
+componentWillMount(){
+		this.props.functions.subscribe("Dashboard")
+	}
+	componentDidMount = () => {
+		console.log("Loading Dashboard")
+		console.log(this.props)
+	}
+
+	lineChart = () => {
+		return (
+		<XYPlot height={200} width={400}>
+			<LineSeries 
+			data={this.state.data.liquidationValue}
+			strokeWidth={1}
+			curve="curveBasis"
+			/>
+			{/* <LineSeries 
+			data={this.state.data.longMarginValue}
+			strokeWidth={1}
+			color={"red"}
+			/>
+			 */}
+		</XYPlot>
+	);
+	   }
+
+
+	render() {
 		//console.log(this.props);
 		return (
-			<Layout>
-				<Sider width={200} className="site-layout-background">
-					<Menu mode="inline" defaultSelectedKeys={["1"]} defaultOpenKeys={["watchlists"]} style={{ height: "100%", borderRight: 0 }}>
-						<SubMenu
-							key="watchlists"
-							title={
-								<span>
-									<UserOutlined />
-									Menu 1
-								</span>
-							}
-						>
-							<Menu.Item key={"home"} onClick={() => this.setShowPage("home")}>
-								Main Dashboard
-							</Menu.Item>
-							<Menu.Item key={"account"} onClick={() => this.setShowPage("account")}>
-								Account
-							</Menu.Item>
-						</SubMenu>
-						<SubMenu
-							key="sub2"
-							title={
-								<span>
-									<LaptopOutlined />
-									subnav 2
-								</span>
-							}
-						>
-							<Menu.Item key="5">Activities</Menu.Item>
-							<Menu.Item key="6">option6</Menu.Item>
-							<Menu.Item key="7">option7</Menu.Item>
-							<Menu.Item key="8">option8</Menu.Item>
-						</SubMenu>
+			<Layout className="Dashboard">
+				<h2>Dashboard</h2>
+				
+				{/* {this.lineChart(this.state.data)} */}
+				<Tabs className="activesTabs" defaultActiveKey="1" tabPosition={"left"}>
 
-						<SubMenu
-							key="sub3"
-							title={
-								<span>
-									<NotificationOutlined />
-									subnav 3
-								</span>
-							}
-						>
-							<Menu.Item key="9">option9</Menu.Item>
-							<Menu.Item key="10">option10</Menu.Item>
-							<Menu.Item key="11">option11</Menu.Item>
-							<Menu.Item key="12">option12</Menu.Item>
-						</SubMenu>
-					</Menu>
-				</Sider>
-				<Layout className="mainLayout">
+					{ ["NYSE","NASDAQ","OTCBB"].map(active => {
+					return <TabPane tab={active} key={active} >
+						<h4>Most active {active} </h4>
+						<Tabs className="activesTabs" defaultActiveKey="0" tabPosition="top">
+						{_.values(this.props.state.actives["ACTIVES_" + active]).map((act) => {
+								return (
 
-					{this.state.showpage === "account" && <Account {...this.props} />}
-					{this.state.showpage === "home" && this.props.actives && <Home {...this.props} />}
-				</Layout>
+
+									<TabPane tab={`${act.sampleDuration / 60}min`} key={`${act.sampleDuration / 60}min`} >
+										<small>({act.sampleDuration / 60}min)</small>
+										<table style={{ fontSize: "10px", width: "400px" }}>
+											<tr>
+												<th>Symbol</th>
+												<th>Volume</th>
+												<th>Price Chng</th>
+											</tr>
+											{act.groups.map((pos) => {
+												return (
+													<tr>
+														<td>
+														{this.props.state.subStocks[pos.symbol] ? "+" : "-"}
+														{pos.symbol}
+														</td>
+														<td>{pos.volume}</td>
+														<td>{pos.priceChange}</td>
+													</tr>
+												);
+											})}
+										</table>
+									</TabPane>
+								);
+							})}
+						</Tabs>
+					</TabPane>
+					})
+					}
+					<TabPane tab={`ACTIVES_OPTIONS`} key={"ACTIVES_OPTIONS"}>
+					<h4>Most active options </h4>
+						
+					<Tabs className="activesTabs" defaultActiveKey="0" tabPosition="top">
+						{_.values(this.props.state.actives.ACTIVES_OPTIONS).map((act) => {
+							return (
+								<TabPane tab={`${act.sampleDuration / 60}min`} key={act.sampleDuration} >
+									<small>({act.sampleDuration / 60}min)</small>
+									
+									<table>
+										<tr>
+											<th>Symbol</th>
+											<th>Name</th>
+											<th>Volume</th>
+											<th>Price Chng</th>
+										</tr>
+										{act.groups.map((pos) => {
+											return (
+													<tr>
+														<td>
+															{this.props.state.subStocks[pos.name] ? "+" : "-"}
+															{pos.symbol}</td>
+														<td>{pos.name}</td>
+														<td>{pos.volume}</td>
+														<td>{pos.priceChange}</td>
+													</tr>
+											)
+										})}
+									</table>
+								</TabPane>
+							);
+						})}
+					</Tabs>
+					</TabPane>
+				</Tabs>
 			</Layout>
-		);
+		)
 	}
 }

@@ -4,8 +4,8 @@
   "private": true,
   "homepage": "https://www.charleskiel.dev/react-mm",
   "dependencies": {
-    "@material-ui/core": "^4.9.11",
-    "@material-ui/icons": "^4.9.1",
+    "@material-ui/core": "^4.11.2",
+    "@material-ui/icons": "^4.11.2",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.3.2",
     "@testing-library/user-event": "^7.1.2",
@@ -15,18 +15,20 @@
     "@vx/mock-data": "0.0.195",
     "@vx/scale": "0.0.195",
     "@vx/shape": "0.0.195",
-    "antd": "^4.1.4",
+    "antd": "^4.10.2",
     "cors": "^2.8.5",
-    "currency.js": "^2.0.2",
-    "d3-array": "^2.4.0",
-    "jquery": "^3.5.0",
-    "lodash": "^4.17.19",
-    "moment": "^2.24.0",
+    "currency.js": "^2.0.3",
+    "d3-array": "^2.9.1",
+    "eventemitter3": "^4.0.7",
+    "file-uri-to-path": "^2.0.0",
+    "jquery": "^3.5.1",
+    "lodash": "^4.17.20",
+    "moment": "^2.29.1",
     "node-sass": "^4.14.1",
-    "react": "^16.13.1",
-    "react-dom": "^16.13.1",
-    "react-redux": "^7.2.0",
-    "react-scripts": "3.4.1",
+    "react": "^16.14.0",
+    "react-dom": "^16.14.0",
+    "react-redux": "^7.2.2",
+    "react-scripts": "^4.0.1",
     "react-vis": "^1.11.7",
     "redux": "^4.0.5",
     "redux-logger": "^3.0.6",
@@ -53,5 +55,17 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "description": "",
+  "main": "src/App.js",
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/charleskiel/react-mm.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/charleskiel/react-mm/issues"
   }
 }
