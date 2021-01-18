@@ -20,7 +20,7 @@
     "currency.js": "^2.0.3",
     "d3-array": "^2.9.1",
     "eventemitter3": "^4.0.7",
-    "filesize": "^6.1.0",
+    "file-uri-to-path": "^2.0.0",
     "jquery": "^3.5.1",
     "lodash": "^4.17.20",
     "moment": "^2.29.1",
